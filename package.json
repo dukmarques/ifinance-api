@@ -1,31 +1,13 @@
 {
-  "name": "ifinance-back",
-  "private": true,
-  "version": "0.1.0",
-  "description": "A Strapi application",
-  "scripts": {
-    "develop": "strapi develop",
-    "start": "strapi start",
-    "build": "strapi build",
-    "strapi": "strapi"
-  },
-  "devDependencies": {},
-  "dependencies": {
-    "@bn-digital/strapi-plugin-field-uuid": "^1.1.7",
-    "@strapi/plugin-i18n": "4.4.3",
-    "@strapi/plugin-users-permissions": "4.4.3",
-    "@strapi/strapi": "4.4.3",
-    "pg": "8.6.0"
-  },
-  "author": {
-    "name": "A Strapi developer"
-  },
-  "strapi": {
-    "uuid": "c31d5239-b243-4612-95e6-d2461bc89bf3"
-  },
-  "engines": {
-    "node": ">=14.19.1 <=18.x.x",
-    "npm": ">=6.0.0"
-  },
-  "license": "MIT"
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build"
+    },
+    "devDependencies": {
+        "axios": "^1.1.2",
+        "laravel-vite-plugin": "^0.7.5",
+        "vite": "^4.0.0"
+    }
 }
