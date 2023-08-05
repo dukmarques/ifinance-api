@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\UsersController;
+use \App\Http\Controllers\CardsController;
+use \App\Http\Controllers\CategoryController;
+use \App\Http\Controllers\TransactionsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -20,3 +23,6 @@ use Illuminate\Support\Facades\Route;
 });*/
 
 Route::apiResource('users', UsersController::class);
+Route::apiResource('users.cards', CardsController::class);
+Route::apiResource('users.categories', CategoryController::class);
+Route::apiResource('users.transactions', TransactionsController::class);

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\UserService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rules\Password;
 use PHPUnit\Event\Code\Throwable;
 
 class UsersController extends Controller
@@ -17,6 +18,10 @@ class UsersController extends Controller
      */
     public function index()
     {
+        return response()->json([
+            'message' => 'Unauthorized request'
+        ], 403);
+
         $users = $this->service->index();
         return response()->json($users, 200);
     }
@@ -26,6 +31,10 @@ class UsersController extends Controller
      */
     public function show(string $id)
     {
+        return response()->json([
+            'message' => 'Unauthorized request'
+        ], 403);
+
         $user = $this->service->show($id);
 
         if(!$user) {
@@ -48,9 +57,11 @@ class UsersController extends Controller
                     'email' => 'required|email',
                     'password' => [
                         'required',
-                        'min:8',
-                        // Regex: min 8 characters, at least one uppercase letter, one lowercase letter, one number and one special character
-                        'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/'
+                        Password::min(8)
+                            ->letters()
+                            ->mixedCase()
+                            ->numbers()
+                            ->symbols()
                     ],
                     'image' => 'filled'
                 ],
@@ -98,6 +109,10 @@ class UsersController extends Controller
      */
     public function destroy(string $id)
     {
+        return response()->json([
+            'message' => 'Unauthorized request'
+        ], 403);
+
         try {
             $user = $this->service->destroy($id);
 
