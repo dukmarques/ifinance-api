@@ -20,7 +20,7 @@ class CardFactory extends Factory
         $user = User::inRandomOrder()->first();
 
         return [
-            'name' => fake()->creditCardType(),
+            'name' => fake()->creditCardType() . "-" . fake()->numberBetween(0, 100),
             'closing_date' => fake()->date(),
             'due_date' => fake()->date(),
             'user_id' => $user->id
