@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
 
 class UserService
 {
@@ -16,14 +17,12 @@ class UserService
         return User::create($data);
     }
 
-    public function show($id): User|null {
-        return User::find($id);
+    public function show(): User|null {
+        return Auth::user();
     }
 
-    public function update($id, $data): User|null {
-        $user = User::find($id);
-
-        if(!$user) return null;
+    public function update($data): User|null {
+        $user = Auth::user();
 
         $user->update($data);
         return $user;

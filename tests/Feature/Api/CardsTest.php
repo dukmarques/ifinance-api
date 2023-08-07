@@ -1,6 +1,6 @@
 <?php
 use function Pest\Faker\fake;
-use function Pest\Laravel\{getJson, postJson, putJson, deleteJson, actingAs};
+use function Pest\Laravel\{getJson, actingAs};
 use App\Models\User;
 use App\Models\Card;
 

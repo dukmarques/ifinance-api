@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Services\AuthService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
 {

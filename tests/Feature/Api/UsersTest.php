@@ -1,16 +1,8 @@
 <?php
 
 use function Pest\Faker\fake;
+use function Pest\Laravel\{postJson, actingAs};
 use App\Models\User;
-
-it('get all users from api', function () {
-    $response = $this->getJson('/api/users');
-
-    $response->assertStatus(403)
-        ->assertJsonFragment([
-            'message' => 'Unauthorized request'
-        ]);
-});
 
 it('create an user', function () {
     $data = [
@@ -20,7 +12,7 @@ it('create an user', function () {
         'image' => fake()->imageUrl
     ];
 
-    $response = $this->postJson('/api/users', $data);
+    $response = postJson('/api/users', $data);
     $response->assertStatus(201)
         ->assertJsonFragment([
             'name' => $data['name'],
@@ -29,13 +21,14 @@ it('create an user', function () {
         ]);
 });
 
-it('show an user by id', function () {
+it('show profile authenticated user', function () {
     $user = User::factory()->create();
 
-    $response = $this->getJson("/api/users/{$user->id}");
-    $response->assertStatus(403)
+    $response = actingAs($user)->getJson("/api/users/profile");
+    $response->assertStatus(200)
         ->assertJsonFragment([
-            'message' => 'Unauthorized request'
+            'name' => $user->name,
+            'email' => $user->email
         ]);
 });
 
@@ -46,16 +39,7 @@ it('update an user', function () {
         'email' => fake()->safeEmail
     ];
 
-    $response = $this->putJson("/api/users/{$user->id}", $data);
+    $response = actingAs($user)->putJson("/api/users/profile", $data);
     $response->assertStatus(200)
         ->assertJsonFragment($data);
-});
-
-it('deleted a user', function () {
-    $user = User::factory()->create();
-    $response = $this->deleteJson("/api/users/{$user->id}");
-    $response->assertStatus(403)
-        ->assertJsonFragment([
-            'message' => 'Unauthorized request'
-        ]);
 });

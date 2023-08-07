@@ -24,9 +24,11 @@ Route::get('/unauthenticated', function () {
     return ['message' => 'unauthenticated user'];
 })->name('login');
 
-Route::apiResource('users', UsersController::class);
+Route::post('/users', [UsersController::class, 'store']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/users/profile', [UsersController::class, 'show']);
+    Route::put('/users/profile', [UsersController::class, 'update']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::apiResource('cards', CardsController::class);
     Route::apiResource('categories', CategoryController::class);

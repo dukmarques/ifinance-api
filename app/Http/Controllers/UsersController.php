@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Password;
-use PHPUnit\Event\Code\Throwable;
 
 class UsersController extends Controller
 {
@@ -18,10 +17,6 @@ class UsersController extends Controller
      */
     public function index()
     {
-        return response()->json([
-            'message' => 'Unauthorized request'
-        ], 403);
-
         $users = $this->service->index();
         return response()->json($users, 200);
     }
@@ -29,13 +24,9 @@ class UsersController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show()
     {
-        return response()->json([
-            'message' => 'Unauthorized request'
-        ], 403);
-
-        $user = $this->service->show($id);
+        $user = $this->service->show();
 
         if(!$user) {
             return response()->json([
@@ -80,7 +71,7 @@ class UsersController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request)
     {
         try {
             $this->validate($request, [
@@ -88,14 +79,7 @@ class UsersController extends Controller
                 'email' => 'filled|email'
             ]);
 
-            $user = $this->service->update($id, $request->all());
-
-            if(!$user) {
-                return response()->json([
-                    'message' => 'User not found'
-                ], 404);
-            }
-
+            $user = $this->service->update($request->all());
             return response()->json($user);
         } catch (\Throwable $err) {
             return response()->json([
@@ -109,10 +93,6 @@ class UsersController extends Controller
      */
     public function destroy(string $id)
     {
-        return response()->json([
-            'message' => 'Unauthorized request'
-        ], 403);
-
         try {
             $user = $this->service->destroy($id);
 
