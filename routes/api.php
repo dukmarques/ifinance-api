@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UsersController;
 use \App\Http\Controllers\CardsController;
 use \App\Http\Controllers\CategoryController;
@@ -18,11 +19,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-/*Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});*/
+Route::post('/auth/login', [AuthController::class, 'login']);
+Route::get('/unauthenticated', function () {
+    return ['message' => 'unauthenticated user'];
+})->name('login');
 
 Route::apiResource('users', UsersController::class);
-Route::apiResource('users.cards', CardsController::class);
-Route::apiResource('users.categories', CategoryController::class);
-Route::apiResource('users.transactions', TransactionsController::class);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/auth/logout', [AuthController::class, 'logout']);
+    Route::apiResource('cards', CardsController::class);
+    Route::apiResource('categories', CategoryController::class);
+    Route::apiResource('transactions', TransactionsController::class);
+});

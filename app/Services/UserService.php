@@ -12,6 +12,7 @@ class UserService
     }
 
     public function store($data): User {
+        $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
         return User::create($data);
     }
 
