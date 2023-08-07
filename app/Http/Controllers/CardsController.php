@@ -16,23 +16,16 @@ class CardsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index($user_id)
+    public function index()
     {
-        $cards = $this->service->index($user_id);
-
-        if(!$cards) {
-            return response()->json([
-                'message' => 'User not found'
-            ], 404);
-        }
-
+        $cards = $this->service->index();
         return response()->json($cards);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, string $user_id)
+    public function store(Request $request)
     {
         try {
             $this->validate($request, [
@@ -41,13 +34,7 @@ class CardsController extends Controller
                 'due_date' => 'filled|date',
             ]);
 
-            $card = $this->service->store($user_id, $request->all());
-
-            if(!$card) {
-                return response()->json([
-                    'message' => 'User not found'
-                ], 404);
-            }
+            $card = $this->service->store($request->all());
 
             return response()->json($card, 201);
         } catch (\Throwable $err) {
@@ -60,9 +47,9 @@ class CardsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $user_id, string $card_id)
+    public function show(string $id)
     {
-        $card = $this->service->show($user_id, $card_id);
+        $card = $this->service->show($id);
 
         if(!$card) {
             return response()->json([
@@ -76,7 +63,7 @@ class CardsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $user_id, string $card_id)
+    public function update(Request $request, string $id)
     {
         try {
             $this->validate($request, [
@@ -85,7 +72,7 @@ class CardsController extends Controller
                 'due_date' => 'filled|date',
             ]);
 
-            $card = $this->service->update($user_id, $card_id, $request->all());
+            $card = $this->service->update($id, $request->all());
 
             if(!$card) {
                 return response()->json([
@@ -104,9 +91,9 @@ class CardsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $user_id, string $card_id)
+    public function destroy(string $id)
     {
-        $card = $this->service->destroy($user_id, $card_id);
+        $card = $this->service->destroy($id);
 
         if(!$card) {
             return response()->json([

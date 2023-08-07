@@ -4,28 +4,24 @@ namespace App\Services;
 
 use App\Models\Card;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class CardService {
-    public function index($user_id) {
-        $user = User::find($user_id);
-
-        return $user?->cards;
+    public function index() {
+        return Card::where('user_id', Auth::id())->get();
     }
 
-    public function show($user_id, $card_id) {
-        return User::find($user_id)->cards()->find($card_id);
+    public function show($id) {
+        return Card::find($id);
     }
 
-    public function store($user_id, $data): Card|null {
-        $user = User::find($user_id);
-        if(!$user) return null;
-
-        $data['user_id'] = $user_id;
+    public function store($data): Card|null {
+        $data['user_id'] = Auth::id();
         return Card::create($data);
     }
 
-    public function update($user_id, $card_id, $data): Card|null {
-        $card = User::find($user_id)->cards()->find($card_id);
+    public function update($id, $data): Card|null {
+        $card = Card::find($id);
 
         if(!$card) return null;
 
@@ -33,7 +29,7 @@ class CardService {
         return $card;
     }
 
-    public function destroy($user_id, $card_id): bool {
-        return Card::where('user_id', $user_id)->where('id', $card_id)->delete();
+    public function destroy($id): bool {
+        return Card::destroy($id);
     }
 }
