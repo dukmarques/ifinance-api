@@ -20,7 +20,7 @@ class CategoryFactory extends Factory
         $user = User::inRandomOrder()->first();
 
         return [
-            'name' => fake()->word(),
+            'name' => fake()->unique()->word(),
             'user_id' => $user->id
         ];
     }
