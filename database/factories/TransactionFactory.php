@@ -30,7 +30,7 @@ class TransactionFactory extends Factory
             'is_owner' => fake()->boolean(),
             'date' => fake()->date(),
             'pay_month' => fake()->date(),
-            'paidOut' => fake()->boolean(),
+            'paid_out' => fake()->boolean(),
             'user_id' => $user->id,
             'card_id' => $card->id,
             'category_id' => $category->id

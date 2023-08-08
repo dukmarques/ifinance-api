@@ -18,7 +18,7 @@ class Transaction extends Model
         'is_owner',
         'date',
         'pay_month',
-        'paidOut',
+        'paid_out',
         'user_id',
         'card_id',
         'category_id'

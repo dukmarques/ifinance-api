@@ -21,8 +21,8 @@ return new class extends Migration
             $table->date('pay_month')->comment('Stores the month the transaction belongs to, not the date the transaction was made');
             $table->boolean('paid_out')->default(0);
             $table->uuid('user_id')->nullable(false);
-            $table->unsignedInteger('card_id');
-            $table->unsignedInteger('category_id');
+            $table->unsignedInteger('card_id')->nullable();
+            $table->unsignedInteger('category_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
