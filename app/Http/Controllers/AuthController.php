@@ -21,11 +21,9 @@ class AuthController extends Controller
                 'device_name' => 'required'
             ]);
 
-            $token = $this->service->login($request->all());
+            $data = $this->service->login($request->all());
 
-            return response()->json([
-                'token' => $token
-            ]);
+            return response()->json($data);
         } catch (\Throwable $err) {
             return response()->json([
                 'message' => $err->getMessage()
