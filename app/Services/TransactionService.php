@@ -23,8 +23,8 @@ class TransactionService {
     public function store(array $data): Transaction {
         $data['user_id'] = Auth::id();
         $data['pay_month'] = Carbon::createFromFormat('Y-m', $data['pay_month']);
-        $data['card_id'] = $data['card'] ?? null;
-        $data['category_id'] = $data['category'] ?? null;
+        $data['card_id'] = $data['card_id'] ?? null;
+        $data['category_id'] = $data['category_id'] ?? null;
         return Transaction::create($data);
     }
 
