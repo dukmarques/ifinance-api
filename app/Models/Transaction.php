@@ -26,6 +26,10 @@ class Transaction extends Model
 
     protected $hidden = [];
 
+    protected $casts = [
+        'pay_month' => 'date:Y-m'
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

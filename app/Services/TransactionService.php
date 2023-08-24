@@ -33,6 +33,9 @@ class TransactionService {
 
         if (!$transaction) return null;
 
+        $data['pay_month'] = Carbon::createFromFormat('Y-m', $data['pay_month']);
+        $data['card_id'] = $data['card_id'] ?? null;
+        $data['category_id'] = $data['category_id'] ?? null;
         $transaction->update($data);
         return $transaction;
     }
