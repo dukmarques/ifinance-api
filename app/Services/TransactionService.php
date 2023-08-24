@@ -22,9 +22,18 @@ class TransactionService {
 
     public function store(array $data): Transaction {
         $data['user_id'] = Auth::id();
+
+        if ($data['type'] === 'entry') {
+            $data['is_owner'] = true;
+            $data['paid_out'] = false;
+            $data['card_id'] = null;
+            $data['category_id'] = null;
+        } else {
+            $data['card_id'] = $data['card_id'] ?? null;
+            $data['category_id'] = $data['category_id'] ?? null;
+        }
+
         $data['pay_month'] = Carbon::createFromFormat('Y-m', $data['pay_month']);
-        $data['card_id'] = $data['card_id'] ?? null;
-        $data['category_id'] = $data['category_id'] ?? null;
         return Transaction::create($data);
     }
 
@@ -33,9 +42,17 @@ class TransactionService {
 
         if (!$transaction) return null;
 
+        if ($data['type'] === 'entry') {
+            $data['is_owner'] = true;
+            $data['paid_out'] = false;
+            $data['card_id'] = null;
+            $data['category_id'] = null;
+        } else {
+            $data['card_id'] = $data['card_id'] ?? null;
+            $data['category_id'] = $data['category_id'] ?? null;
+        }
+
         $data['pay_month'] = Carbon::createFromFormat('Y-m', $data['pay_month']);
-        $data['card_id'] = $data['card_id'] ?? null;
-        $data['category_id'] = $data['category_id'] ?? null;
         $transaction->update($data);
         return $transaction;
     }

@@ -51,8 +51,6 @@ class TransactionsController extends Controller
                 'date' => 'required|date',
                 'pay_month' => 'required|date',
                 'paid_out' => 'required|boolean',
-                'card_id' => 'filled',
-                'category_id' => 'filled'
             ]);
 
             $transaction = $this->service->store(data: $request->all());
@@ -78,8 +76,6 @@ class TransactionsController extends Controller
                 'date' => 'filled|date',
                 'pay_month' => 'filled|date',
                 'paid_out' => 'filled|boolean',
-                'card_id' => 'filled',
-                'category_id' => 'filled'
             ]);
 
             $transaction = $this->service->update(id: $id, data: $request->all());
