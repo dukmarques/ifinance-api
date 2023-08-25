@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Auth;
 
 class CategoryService {
     public function index(): Collection {
-        return Category::where('user_id', Auth::id())->get();
+        return Category::where('user_id', Auth::id())
+            ->withCount('transactions')
+            ->get();
     }
 
     public function show(string $id): Category|null {
