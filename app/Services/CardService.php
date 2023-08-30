@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Auth;
 
 class CardService {
     public function index() {
-        return Card::where('user_id', Auth::id())->get();
+        return Card::where('user_id', Auth::id())
+            ->withCount('transactions')
+            ->get();
     }
 
     public function show($id) {
