@@ -54,13 +54,15 @@ class User extends Authenticatable
         ];
     }
 
-    public function cards(): HasMany
-    {
+    public function cards(): HasMany {
         return $this->hasMany(Card::class);
     }
 
-    public function categories(): HasMany
-    {
+    public function categories(): HasMany {
         return $this->hasMany(Category::class);
+    }
+
+    public function revenues(): HasMany {
+        return $this->hasMany(Revenues::class);
     }
 }
