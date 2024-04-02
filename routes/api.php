@@ -17,6 +17,9 @@ Route::get('/unauthenticated', function () {
 Route::post('/users', [UsersController::class, 'store']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/users/profile', [UsersController::class, 'show']);
+    Route::put('/users/profile', [UsersController::class, 'update']);
+    Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::apiResource('cards', CardsController::class);
     Route::apiResource('categories', CategoriesController::class);
     Route::apiResource('revenues', RevenuesController::class);
