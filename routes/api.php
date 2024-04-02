@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UsersController;
 use App\Http\Controllers\CardsController;
 use App\Http\Controllers\RevenuesController;
 use App\Http\Controllers\CategoriesController;
@@ -7,9 +9,16 @@ use App\Http\Controllers\ExpensesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+Route::post('/auth/login', [AuthController::class, 'login']);
+Route::get('/unauthenticated', function () {
+    return ['message' => 'unauthenticated user'];
+})->name('login');
+
+Route::post('/users', [UsersController::class, 'store']);
+
 Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('revenues', RevenuesController::class);
     Route::apiResource('cards', CardsController::class);
     Route::apiResource('categories', CategoriesController::class);
+    Route::apiResource('revenues', RevenuesController::class);
     Route::apiResource('expenses', ExpensesController::class);
 });
