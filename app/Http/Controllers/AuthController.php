@@ -2,14 +2,44 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\UserService;
+use App\Services\AuthService;
 use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
-    private UserService $service;
-    public function __construct(UserService $service)
+    private AuthService $service;
+    public function __construct(AuthService $service)
     {
         $this->service = $service;
+    }
+
+    public function login(Request $request) {
+        try {
+            $this->validate($request, [
+                'email' => 'required|email',
+                'password' => 'required',
+                'device_name' => 'required'
+            ]);
+
+            $data = $this->service->login($request->all());
+
+            return response()->json($data);
+        } catch (\Throwable $err) {
+            return response()->json([
+                'message' => $err->getMessage()
+            ], 400);
+        }
+    }
+
+    public function logout(Request $request) {
+        $logout = $this->service->logout($request);
+
+        if($logout) {
+            return response()->json();
+        }
+
+        return response()->json([
+            'message' => 'An error occurred while logging out user'
+        ], 500);
     }
 }
