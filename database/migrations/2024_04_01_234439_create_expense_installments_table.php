@@ -20,7 +20,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreignUuid('expense_id')->references('id')->on('expenses');
+            $table->foreignUuid('expenses_id')->references('id')->on('expenses');
         });
     }
 

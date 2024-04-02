@@ -14,11 +14,10 @@ return new class extends Migration
         Schema::create('categories', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name')->unique();
-            $table->uuid('user_id')->nullable(false);
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreignUuid('user_id')->references('id')->on('users');
         });
     }
 

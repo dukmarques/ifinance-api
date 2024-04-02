@@ -16,11 +16,10 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->date('closing_date')->nullable();
             $table->date('due_date')->nullable();
-            $table->uuid('user_id')->nullable(false);
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreignUuid('user_id')->references('id')->on('users');
         });
     }
 
