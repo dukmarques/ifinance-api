@@ -22,7 +22,7 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->foreignUuid('user_id')->references('id')->on('users');
-            $table->foreignUuid('category_id')->references('id')->on('categories');
+            $table->foreignUuid('category_id')->nullable()->references('id')->on('categories');
         });
     }
 
