@@ -18,7 +18,7 @@ class ExpenseInstallments extends Model
         'paid',
         'parcel_number',
         'pay_month',
-        'expense_id',
+        'expenses_id',
     ];
 
     public function expense(): BelongsTo {

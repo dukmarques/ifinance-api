@@ -2,16 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\CategoryService;
 use Illuminate\Http\Request;
 
 class CategoriesController extends Controller
 {
+    private CategoryService $service;
+
+    public function __construct(CategoryService $service) {
+        $this->service = $service;
+    }
+
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        return $this->service->index();
     }
 
     /**
@@ -19,7 +26,18 @@ class CategoriesController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $this->validate($request, [
+                'name' => 'required|min:2'
+            ]);
+
+            $category = $this->service->store($request->all());
+            return response()->json($category, 201);
+        } catch (\Throwable $err) {
+            return response()->json([
+                'message' => $err->getMessage()
+            ], 400);
+        }
     }
 
     /**
@@ -27,7 +45,15 @@ class CategoriesController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $category = $this->service->show($id);
+
+        if (!$category) {
+            return response()->json([
+                'message' => 'Category not found'
+            ], 404);
+        }
+
+        return response()->json($category);
     }
 
     /**
@@ -35,7 +61,25 @@ class CategoriesController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        try {
+            $this->validate($request, [
+                'name' => 'filled|min:2'
+            ]);
+
+            $category = $this->service->update($id, $request->all());
+
+            if (!$category) {
+                return response()->json([
+                    'message' => 'Category not found'
+                ], 404);
+            }
+
+            return response()->json($category);
+        } catch (\Throwable $err) {
+            return response()->json([
+                'message' => $err->getMessage()
+            ], 400);
+        }
     }
 
     /**
@@ -43,6 +87,16 @@ class CategoriesController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $category = $this->service->destroy($id);
+
+        if (!$category) {
+            return response()->json([
+                'message' => 'Category not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => 'Category deleted successfully'
+        ]);
     }
 }
