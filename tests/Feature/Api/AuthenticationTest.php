@@ -24,6 +24,32 @@ it('logout user', function () {
     $response->assertStatus(200);
 });
 
+it('login user with incorrect email', function () {
+    $response = $this->postJson("/api/auth/login", [
+        'email' => fake('pt_BR')->safeEmail,
+        'password' => 'Teste@123',
+        'device_name' => 'testing'
+    ]);
+
+    $response->assertStatus(400)
+        ->assertJsonFragment([
+            'message' => 'The provided credentials are incorrect'
+        ]);
+});
+
+it('login user with incorrect password', function () {
+    $response = $this->postJson("/api/auth/login", [
+        'email' => $this->user->email,
+        'password' => 'Teste@456',
+        'device_name' => 'testing'
+    ]);
+
+    $response->assertStatus(400)
+        ->assertJsonFragment([
+            'message' => 'The provided credentials are incorrect'
+        ]);
+});
+
 it('user not authenticated', function () {
     $response = $this->postJson('/api/cards', []);
     $response->assertStatus(401)
