@@ -9,6 +9,10 @@ use App\Http\Controllers\ExpensesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/ping', function () {
+    return ['message' => 'pong'];
+});
+
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::get('/unauthenticated', function () {
     return ['message' => 'unauthenticated user'];
