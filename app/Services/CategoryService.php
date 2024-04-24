@@ -9,8 +9,7 @@ use Illuminate\Support\Facades\Auth;
 class CategoryService
 {
     public function index(): Collection {
-        return Category::where('user_id', Auth::id())
-            ->withCount(['revenues', 'expenses'])
+        return Category::withCount(['revenues', 'expenses'])
             ->get();
     }
 

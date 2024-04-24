@@ -10,8 +10,7 @@ class CardService
 {
     public function index(): Collection|array
     {
-        return Card::where('user_id', Auth::id())
-            ->withCount('installments')
+        return Card::withCount('installments')
             ->get();
     }
 
