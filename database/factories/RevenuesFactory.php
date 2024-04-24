@@ -2,6 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\Category;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,8 +19,18 @@ class RevenuesFactory extends Factory
      */
     public function definition(): array
     {
+        $user = User::inRandomOrder()->first();
+        $category = Category::inRandomOrder()->first();
+
         return [
-            //
+            'title' => fake()->word(),
+            'amount' => fake()->randomDigit(),
+            'receiving_date' => Carbon::now(),
+            'recurrent' => fake()->boolean(),
+            'description' => fake()->text(300),
+            'deprecated' => false,
+            'user_id' => $user->id,
+            'category_id' => $category->id,
         ];
     }
 }

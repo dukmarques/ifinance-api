@@ -11,21 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('revenues', function (Blueprint $table) {
+        Schema::create('revenues_updates', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('title', length: 100);
             $table->unsignedInteger('amount');
             $table->date('receiving_date')
-                ->index('receiving_date_index')
-                ->comment('This column represents the month in which the money will be considered when calculating income versus expenses.');
-            $table->boolean('recurrent');
+                ->index('receiving_date_update_index');
             $table->string('description', length: 300);
-            $table->boolean('deprecated')->default(false);
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreignUuid('user_id')->references('id')->on('users');
-            $table->foreignUuid('category_id')->nullable()->references('id')->on('categories');
+            $table->foreignUuid('revenues_id')->references('id')->on('revenues');
         });
     }
 
@@ -34,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('revenues');
+        Schema::dropIfExists('revenues_updates');
     }
 };

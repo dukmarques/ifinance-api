@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Scopes\AuthScope;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -36,8 +37,10 @@ class Revenues extends Model
         return $this->belongsTo(Category::class);
     }
 
-    public function revenuesUpdates(): HasMany
+    public function revenuesUpdates(Carbon $date): HasMany
     {
-        return $this->hasMany(RevenuesUpdates::class);
+        return $this->hasMany(RevenuesUpdates::class)
+            ->whereMonth('receiving_date', $date->month)
+            ->whereYear('receiving_date', $date->year);
     }
 }

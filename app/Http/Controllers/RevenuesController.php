@@ -17,9 +17,24 @@ class RevenuesController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        //
+    public function index(Request $request) {
+        $revenues = $this->service->index($request->all());
+        return response()->json($revenues);
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id) {
+        $revenue = $this->service->show($id);
+
+        if (!$revenue) {
+            return response()->json([
+                'message' => 'Revenue not found'
+            ], 404);
+        }
+
+        return response()->json($revenue);
     }
 
     /**
@@ -34,14 +49,6 @@ class RevenuesController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Revenues $revenues)
     {
         //
     }
