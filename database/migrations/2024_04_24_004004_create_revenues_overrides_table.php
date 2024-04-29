@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('revenues_updates', function (Blueprint $table) {
+        Schema::create('revenues_overrides', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('title', length: 100);
             $table->unsignedInteger('amount');
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('revenues_updates');
+        Schema::dropIfExists('revenues_overrides');
     }
 };

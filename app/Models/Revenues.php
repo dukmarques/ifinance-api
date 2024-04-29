@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[ScopedBy(AuthScope::class)]
+#[ScopedBy([AuthScope::class])]
 class Revenues extends Model
 {
     use HasFactory, HasUuids, SoftDeletes;
@@ -29,6 +29,10 @@ class Revenues extends Model
         'category_id',
     ];
 
+    public function scopeWithUpdates() {
+
+    }
+
     public function user(): BelongsTo {
         return $this->belongsTo(User::class);
     }
@@ -39,7 +43,7 @@ class Revenues extends Model
 
     public function revenuesUpdates(Carbon $date): HasMany
     {
-        return $this->hasMany(RevenuesUpdates::class)
+        return $this->hasMany(RevenuesOverrides::class)
             ->whereMonth('receiving_date', $date->month)
             ->whereYear('receiving_date', $date->year);
     }
