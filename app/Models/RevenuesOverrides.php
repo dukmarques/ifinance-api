@@ -17,7 +17,6 @@ class RevenuesOverrides extends Model
         'title',
         'amount',
         'receiving_date',
-        'recurrent',
         'description',
         'revenues_id',
     ];
