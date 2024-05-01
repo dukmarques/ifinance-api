@@ -1,7 +1,8 @@
 <?php
 
+use Carbon\Carbon;
 use function Pest\Faker\fake;
-use function Pest\Laravel\{getJson, actingAs};
+use function Pest\Laravel\{getJson, postJson, actingAs};
 use App\Models\User;
 use App\Models\Category;
 use App\Models\Revenues;
@@ -236,3 +237,77 @@ it('get revenues not current', function () {
         'deprecated_date' => null,
     ]);
 });
+
+it('create a non-recurring revenue', function () {
+    $data = [
+        'title' => fake()->word(),
+        'amount' => fake()->randomNumber(5, true),
+        'receiving_date' => Carbon::now()->toDateString(),
+        'recurrent' => false,
+        'description' => fake()->text(300),
+        'category_id' => $this->category->id,
+    ];
+
+    $response = $this->actingAs($this->user)->postJson("/api/revenues", $data);
+    $response->assertStatus(201)
+        ->assertJsonFragment($data);
+});
+
+it('create a recurring revenue', function () {
+    $data = [
+        'title' => fake()->word(),
+        'amount' => fake()->randomNumber(5, true),
+        'receiving_date' => Carbon::now()->toDateString(),
+        'recurrent' => true,
+        'description' => fake()->text(300),
+        'category_id' => $this->category->id,
+    ];
+
+    $response = $this->actingAs($this->user)->postJson("/api/revenues", $data);
+    $response->assertStatus(201)
+        ->assertJsonFragment($data);
+});
+
+it('create a recurring revenue without title', function () {
+    $data = [
+        'title' => '',
+        'amount' => fake()->randomNumber(5, true),
+        'receiving_date' => Carbon::now()->toDateString(),
+        'recurrent' => true,
+        'description' => fake()->text(300),
+        'category_id' => $this->category->id,
+    ];
+
+    $response = $this->actingAs($this->user)->postJson("/api/revenues", $data);
+    $response->assertStatus(400)
+        ->assertJsonFragment(['message' => 'The title field is required.']);
+});
+
+it('create a recurring revenue with incorrect amount', function () {
+    $data = [
+        'title' => fake()->word(),
+        'amount' => 'this is not a number',
+        'receiving_date' => Carbon::now()->toDateString(),
+        'recurrent' => true,
+        'description' => fake()->text(300),
+        'category_id' => $this->category->id,
+    ];
+
+    $response = $this->actingAs($this->user)->postJson("/api/revenues", $data);
+    $response->assertStatus(400)
+        ->assertJsonFragment(['message' => 'The amount field must be a number.']);
+});
+
+/*it('update a non-recurring revenue', function () {
+    $data = [
+        'title' => fake()->word(),
+        'amount' => fake()->randomNumber(5, true),
+        'recurrent' => false,
+        'description' => fake()->text(300),
+    ];
+
+    $revenue = Revenues::factory()->create();
+    $response = $this->actingAs($this->user)->putJson("/api/revenues/{$revenue->id}?date={$this->date->toDateString()}", $data);
+    $response->assertStatus(200)
+        ->assertJsonFragment($data);
+});*/
