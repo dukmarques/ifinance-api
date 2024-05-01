@@ -18,9 +18,9 @@ return new class extends Migration
             $table->date('receiving_date')
                 ->index('receiving_date_index')
                 ->comment('This column represents the month in which the money will be considered when calculating income versus expenses.');
+            $table->date('deprecated_date')->nullable();
             $table->boolean('recurrent');
             $table->string('description', length: 300);
-            $table->boolean('deprecated')->default(false);
             $table->timestamps();
             $table->softDeletes();
 

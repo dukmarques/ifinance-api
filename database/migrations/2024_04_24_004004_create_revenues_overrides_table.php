@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('revenues_overrides', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('title', length: 100);
-            $table->unsignedInteger('amount');
+            $table->string('title', length: 100)->nullable();
+            $table->unsignedInteger('amount')->nullable();
             $table->date('receiving_date')
                 ->index('receiving_date_update_index');
-            $table->string('description', length: 300);
+            $table->string('description', length: 300)->nullable();
             $table->timestamps();
             $table->softDeletes();
 
