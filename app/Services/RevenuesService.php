@@ -6,6 +6,7 @@ use App\Models\Revenues;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
 
 class RevenuesService
 {
@@ -50,5 +51,10 @@ class RevenuesService
                     ->whereYear('revenues_overrides.receiving_date', $date->year);
             }
         ])->find($id);
+    }
+
+    public function store(Array $data): Revenues|null {
+        $data['user_id'] = Auth::id();
+        return Revenues::create($data);
     }
 }
