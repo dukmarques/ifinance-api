@@ -23,7 +23,7 @@ class Revenues extends Model
         'receiving_date',
         'recurrent',
         'description',
-        'deprecated',
+        'deprecated_date',
         'user_id',
         'category_id',
     ];

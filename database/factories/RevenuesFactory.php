@@ -24,11 +24,11 @@ class RevenuesFactory extends Factory
 
         return [
             'title' => fake()->word(),
-            'amount' => fake()->randomDigit(),
+            'amount' => fake()->randomNumber(5, true),
             'receiving_date' => Carbon::now(),
             'recurrent' => fake()->boolean(),
             'description' => fake()->text(300),
-            'deprecated' => false,
+            'deprecated_date' => null,
             'user_id' => $user->id,
             'category_id' => $category->id,
         ];
