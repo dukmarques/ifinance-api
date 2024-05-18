@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Category;
 use App\Models\Revenues;
 use App\Models\RevenuesOverrides;
+use Illuminate\Support\Arr;
 
 beforeEach(function () {
     $this->user = User::factory()->create();
@@ -298,16 +299,79 @@ it('create a recurring revenue with incorrect amount', function () {
         ->assertJsonFragment(['message' => 'The amount field must be a number.']);
 });
 
-/*it('update a non-recurring revenue', function () {
+it('update a non-recurring revenue', function () {
     $data = [
         'title' => fake()->word(),
         'amount' => fake()->randomNumber(5, true),
-        'recurrent' => false,
         'description' => fake()->text(300),
     ];
 
-    $revenue = Revenues::factory()->create();
-    $response = $this->actingAs($this->user)->putJson("/api/revenues/{$revenue->id}?date={$this->date->toDateString()}", $data);
+    $revenue = Revenues::factory()->create(['recurrent' => false]);
+
+    $response = $this->actingAs($this->user)->putJson("/api/revenues/{$revenue->id}", $data);
     $response->assertStatus(200)
         ->assertJsonFragment($data);
-});*/
+});
+
+it('update recurring revenue every month', function () {
+    $data = [
+        'title' => fake()->word(),
+        'amount' => fake()->randomNumber(5, true),
+        'description' => fake()->text(300),
+    ];
+
+    $revenue = Revenues::factory()->create([
+        'receiving_date' => $this->date->subMonths(7),
+        'recurrent' => false,
+    ]);
+
+    $updateInfo = [
+        'update_type' => 'all_months',
+        'date' => $this->date,
+    ];
+
+    $response = $this->actingAs($this->user)->putJson(
+        "/api/revenues/{$revenue->id}",
+        array_merge($data, $updateInfo)
+    );
+
+    $response->assertStatus(200)
+        ->assertJsonFragment($data);
+});
+
+it('update a recurring revenue only in the reported month', function () {
+    $data = [
+        'title' => fake()->word(),
+        'amount' => fake()->randomNumber(5, true),
+        'description' => fake()->text(300),
+    ];
+
+    $revenue = Revenues::factory()->create([
+        'receiving_date' => $this->date->subMonths(7),
+        'recurrent' => true,
+    ]);
+
+    $updateInfo = Arr::collapse([$data, [
+        'update_type' => 'only_month',
+        'date' => $this->date->subMonths(2),
+    ]]);
+
+    $response = $this->actingAs($this->user)->putJson("/api/revenues/{$revenue->id}", $updateInfo);
+
+    $response->dump()->assertStatus(200)
+        ->assertJsonFragment($data);
+});
+
+it('update a recurring revenue in the reported month and in the following months', function () {
+
+});
+
+it('update a non-existent revenue', function () {
+    $data = [
+        'title' => fake()->word(),
+    ];
+
+    $response = $this->actingAs($this->user)->putJson("/api/revenues/123", $data);
+    $response->assertStatus(404)
+        ->assertJsonFragment(['message' => 'Revenue not found']);
+});

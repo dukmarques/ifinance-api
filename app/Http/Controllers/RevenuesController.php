@@ -62,19 +62,35 @@ class RevenuesController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Revenues $revenues)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Revenues $revenues)
+    public function update(Request $request, string $id)
     {
-        //
+        try {
+            $this->validate($request, [
+                'title' => 'bail|filled|max:100|min:2',
+                'amount' => 'bail|filled|numeric|',
+                'receiving_date' => 'bail|filled|date|',
+                'recurrent' => 'bail|filled|boolean',
+                'description' => 'filled|string|max:300',
+                'category_id' => 'filled|uuid|nullable',
+                'date' => 'filled|date',
+            ]);
+
+            $revenue = $this->service->update($id, $request->all());
+
+            if (!$revenue) {
+                return response()->json([
+                    'message' => 'Revenue not found'
+                ], 404);
+            }
+
+            return response()->json($revenue);
+        } catch (\Throwable $err) {
+            return response()->json([
+                'message' => $err->getMessage()
+            ], 400);
+        }
     }
 
     /**
