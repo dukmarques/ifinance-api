@@ -357,13 +357,13 @@ it('update a recurring revenue only in the reported month', function () {
     ];
 
     $revenue = Revenues::factory()->create([
-        'receiving_date' => $this->date->subMonths(7),
+        'receiving_date' => Carbon::now()->subMonths(7),
         'recurrent' => true,
     ]);
 
     $updateInfo = Arr::collapse([$data, [
         'update_type' => 'only_month',
-        'date' => $this->date->subMonths(2),
+        'date' => Carbon::now()->subMonths(2),
     ]]);
 
     $response = $this->actingAs($this->user)->putJson("/api/revenues/{$revenue->id}", $updateInfo);
@@ -394,4 +394,26 @@ it('update a recurring revenue in the reported month and in the following months
         ->assertJsonFragment($data);
 
     expect($response->json('id'))->not->toBe($revenue->id);
+});
+
+it('updates recurring revenue in the current and upcoming months where the current month is equal to the receiving_date', function () {
+    $data = [
+        'title' => fake()->word(),
+        'amount' => fake()->randomNumber(5, true),
+        'description' => fake()->text(300),
+    ];
+
+    $revenue = Revenues::factory()->create([
+        'receiving_date' => Carbon::now()->subMonths(10),
+        'recurrent' => true,
+    ]);
+
+    $updateInfo = Arr::collapse([$data, [
+        'update_type' => 'current_month_and_followers',
+        'date' => Carbon::now()->subMonths(10),
+    ]]);
+
+    $response = $this->actingAs($this->user)->putJson('/api/revenues/' . $revenue->id, $updateInfo);
+    $response->dump()->assertStatus(200)
+        ->assertJsonFragment($data);
 });

@@ -77,7 +77,11 @@ class RevenuesService
         }
 
         // atualizar mês atual e próximos adiante: adicionar deprecated e criar novo registro
-        if ($revenue->recurrent && $data['update_type'] === Revenues::CURRENT_MONTH_AND_FOLLOWERS) {
+        if (
+                $revenue->recurrent
+                && $data['update_type'] === Revenues::CURRENT_MONTH_AND_FOLLOWERS
+                && !isSameMonthAndYear($date, $revenue->receiving_date)
+        ) {
             return $this->handleUpdateInformedMonthAndFollowing(attributes: $data, revenue: $revenue, date: $date);
         }
 
