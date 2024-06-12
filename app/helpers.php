@@ -3,7 +3,7 @@
 use Carbon\Carbon;
 
 if (! function_exists('createCarbonDateFromString')) {
-    function createCarbonDateFromString(string $dateString): Carbon {
+    function createCarbonDateFromString(string|null $dateString): Carbon {
         return $dateString ? Carbon::parse($dateString) : Carbon::now();
     }
 }
