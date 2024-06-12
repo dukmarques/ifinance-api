@@ -16,6 +16,10 @@ class Revenues extends Model
 {
     use HasFactory, HasUuids, SoftDeletes;
 
+    const ONLY_MONTH = 'only_month';
+    const CURRENT_MONTH_AND_FOLLOWERS = 'current_month_and_followers';
+    const ALL_MONTH = 'all_month';
+
     protected $fillable = [
         'id',
         'title',
