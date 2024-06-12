@@ -299,6 +299,16 @@ it('create a recurring revenue with incorrect amount', function () {
         ->assertJsonFragment(['message' => 'The amount field must be a number.']);
 });
 
+it('update a non-existent revenue', function () {
+    $data = [
+        'title' => fake()->word(),
+    ];
+
+    $response = $this->actingAs($this->user)->putJson("/api/revenues/123", $data);
+    $response->assertStatus(404)
+        ->assertJsonFragment(['message' => 'Revenue not found']);
+});
+
 it('update a non-recurring revenue', function () {
     $data = [
         'title' => fake()->word(),
@@ -358,20 +368,30 @@ it('update a recurring revenue only in the reported month', function () {
 
     $response = $this->actingAs($this->user)->putJson("/api/revenues/{$revenue->id}", $updateInfo);
 
-    $response->dump()->assertStatus(200)
+    $response->assertStatus(200)
         ->assertJsonFragment($data);
 });
 
 it('update a recurring revenue in the reported month and in the following months', function () {
-
-});
-
-it('update a non-existent revenue', function () {
     $data = [
         'title' => fake()->word(),
+        'amount' => fake()->randomNumber(5, true),
+        'description' => fake()->text(300),
     ];
 
-    $response = $this->actingAs($this->user)->putJson("/api/revenues/123", $data);
-    $response->assertStatus(404)
-        ->assertJsonFragment(['message' => 'Revenue not found']);
+    $revenue = Revenues::factory()->create([
+        'receiving_date' => Carbon::now()->subMonths(7),
+        'recurrent' => true,
+    ]);
+
+    $updateInfo = Arr::collapse([$data, [
+        'update_type' => 'current_month_and_followers',
+        'date' => Carbon::now()->subMonths(2),
+    ]]);
+
+    $response = $this->actingAs($this->user)->putJson('/api/revenues/' . $revenue->id, $updateInfo);
+    $response->assertStatus(200)
+        ->assertJsonFragment($data);
+
+    expect($response->json('id'))->not->toBe($revenue->id);
 });

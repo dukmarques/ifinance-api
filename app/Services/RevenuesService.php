@@ -7,14 +7,13 @@ use App\Models\RevenuesOverrides;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 
 class RevenuesService
 {
     public function index($requestData): Collection|array {
-        $date = isset($requestData['date'])
-            ? Carbon::parse($requestData['date'])
-            : Carbon::now();
+        $date = createCarbonDateFromString($requestData['date']);
 
         $query = Revenues::query()
             ->where(function (Builder $query) use ($date) {
@@ -41,9 +40,7 @@ class RevenuesService
 
     public function show(string $id)
     {
-        $date = request()->has('date')
-            ? Carbon::parse(request()->input('date'))
-            : Carbon::now();
+        $date = createCarbonDateFromString(request()->input('date'));
 
         return Revenues::with([
             'category',
@@ -66,11 +63,11 @@ class RevenuesService
             return null;
         }
 
-        // TODO: atualizar apenas mês atual: criar RevenueOverride
-        if ($revenue->recurrent && $data['update_type'] === 'only_month') {
-            $date = Carbon::parse($data['date']);
+        $date = createCarbonDateFromString(Arr::get($data, 'date'));
 
-            $this->handleUpdateOnlyMonthInformed(attributes: $data, revenue: $revenue);
+        // atualizar apenas mês atual: criar RevenueOverride
+        if ($revenue->recurrent && $data['update_type'] === Revenues::ONLY_MONTH) {
+            $this->handleUpdateOnlyMonthInformed(attributes: $data, revenue: $revenue, date: $date);
             return $revenue->with([
                 'overrides' => function ($query) use ($date) {
                     $query->whereMonth('revenues_overrides.receiving_date', $date->month)
@@ -79,18 +76,16 @@ class RevenuesService
             )->first();
         }
 
-        // TODO: atualizar mês atual e próximos adiante: adicionar deprecated e criar novo registro
-        if ($revenue->recurrent && $data['update_type'] === '') {
-            return $this->handleUpdateInformedMonthAndFollowing();
+        // atualizar mês atual e próximos adiante: adicionar deprecated e criar novo registro
+        if ($revenue->recurrent && $data['update_type'] === Revenues::CURRENT_MONTH_AND_FOLLOWERS) {
+            return $this->handleUpdateInformedMonthAndFollowing(attributes: $data, revenue: $revenue, date: $date);
         }
 
         $revenue->update($data);
         return $revenue;
     }
 
-    private function handleUpdateOnlyMonthInformed(Array $attributes, Revenues $revenue) {
-        $date = Carbon::parse($attributes['date']);
-
+    private function handleUpdateOnlyMonthInformed(Array $attributes, Revenues $revenue, Carbon $date) {
         $revenueOverride = RevenuesOverrides::query()
             ->where('revenues_id', $revenue->id)
             ->whereMonth('revenues_overrides.receiving_date', '=', $date->month)
@@ -110,5 +105,17 @@ class RevenuesService
         return $revenueOverride->update($attributes);
     }
 
-    private function handleUpdateInformedMonthAndFollowing() {}
+    private function handleUpdateInformedMonthAndFollowing(Array $attributes, Revenues $revenue, Carbon $date) {
+        $newRevenue = $revenue->replicate()->fill(
+            $attributes + [
+                'receiving_date' => $date->toDateString(),
+            ]
+        );
+        $newRevenue->save();
+
+        $revenue->deprecated_date = $date->toDateString();
+        $revenue->save();
+
+        return $newRevenue;
+    }
 }
