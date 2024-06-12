@@ -7,3 +7,17 @@ if (! function_exists('createCarbonDateFromString')) {
         return $dateString ? Carbon::parse($dateString) : Carbon::now();
     }
 }
+
+if (! function_exists('isSameMonthAndYear')) {
+    function isSameMonthAndYear(Carbon|string $date1, Carbon|string $date2): bool {
+        if (is_string($date1)) {
+            $date1 = Carbon::parse($date1);
+        }
+
+        if (is_string($date2)) {
+            $date2 = Carbon::parse($date2);
+        }
+
+        return $date1->format('Y-m') === $date2->format('Y-m');
+    }
+}
