@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Revenues;
 use App\Models\RevenuesOverrides;
 use Illuminate\Support\Arr;
+use Symfony\Component\HttpFoundation\Response;
 
 beforeEach(function () {
     $this->user = User::factory()->create();
@@ -414,6 +415,22 @@ it('updates recurring revenue in the current and upcoming months where the curre
     ]]);
 
     $response = $this->actingAs($this->user)->putJson('/api/revenues/' . $revenue->id, $updateInfo);
-    $response->dump()->assertStatus(200)
+    $response->assertStatus(200)
         ->assertJsonFragment($data);
+});
+
+it('exclude non-recurring income', function () {
+    $revenue = Revenues::factory()->create([
+        'receiving_date' => Carbon::now()->subMonths(10),
+        'recurrent' => false,
+    ]);
+
+    $response = $this->actingAs($this->user)->deleteJson("/api/revenues/{$revenue->id}");
+    $response->assertStatus(Response::HTTP_NO_CONTENT);
+});
+
+it('delete non-existing revenue ', function () {
+    $response = $this->actingAs($this->user)->deleteJson("/api/revenues/123");
+    $response->assertStatus(Response::HTTP_NOT_FOUND)
+        ->assertJsonFragment(['message' => 'Revenue not found']);
 });

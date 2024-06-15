@@ -122,4 +122,31 @@ class RevenuesService
 
         return $newRevenue;
     }
+
+    public function destroy(string $id): bool|null {
+        $revenue = Revenues::query()->find($id);
+
+        if (!$revenue) {
+            return null;
+        }
+
+        $date = createCarbonDateFromString(request()->input('date'));
+        $type = request()->input('exclude_type') ?: null;
+
+        // TODO: excluir apenas mês atual
+        if ($revenue->recurrent && $type === Revenues::ONLY_MONTH) {
+            return false;
+        }
+
+        // TODO: excluir mês atual e próximos
+        if (
+            $revenue->recurrent
+            && $type === Revenues::CURRENT_MONTH_AND_FOLLOWERS
+            && !isSameMonthAndYear($date, $revenue->receiving_date)
+        ) {
+            return false;
+        }
+
+        return $revenue->forceDelete();
+    }
 }
