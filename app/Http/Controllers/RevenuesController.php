@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Revenues;
 use App\Services\RevenuesService;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class RevenuesController extends Controller
 {
@@ -31,7 +32,7 @@ class RevenuesController extends Controller
         if (!$revenue) {
             return response()->json([
                 'message' => 'Revenue not found'
-            ], 404);
+            ], Response::HTTP_NOT_FOUND);
         }
 
         return response()->json($revenue);
@@ -57,7 +58,7 @@ class RevenuesController extends Controller
         } catch (\Throwable $err) {
             return response()->json([
                 'message' => $err->getMessage()
-            ], 400);
+            ], Response::HTTP_BAD_REQUEST);
         }
     }
 
@@ -82,22 +83,32 @@ class RevenuesController extends Controller
             if (!$revenue) {
                 return response()->json([
                     'message' => 'Revenue not found'
-                ], 404);
+                ], Response::HTTP_NOT_FOUND);
             }
 
             return response()->json($revenue);
         } catch (\Throwable $err) {
             return response()->json([
                 'message' => $err->getMessage()
-            ], 400);
+            ], Response::HTTP_BAD_REQUEST);
         }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Revenues $revenues)
+    public function destroy(string $id)
     {
-        //
+        $revenue = $this->service->destroy($id);
+
+        if (!$revenue) {
+            return response()->json([
+                'message' => 'Revenue not found',
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        return response()->json([
+            'message' => 'Revenue deleted successfully'
+        ], Response::HTTP_NO_CONTENT);
     }
 }
