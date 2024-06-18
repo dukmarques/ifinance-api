@@ -131,22 +131,46 @@ class RevenuesService
         }
 
         $date = createCarbonDateFromString(request()->input('date'));
-        $type = request()->input('exclude_type') ?: null;
+        $type = request()->input('exclusion_type') ?: null;
 
-        // TODO: excluir apenas mês atual
+        // excluir apenas mês atual
         if ($revenue->recurrent && $type === Revenues::ONLY_MONTH) {
-            return false;
+            return $this->deleteOnlyInCurrentMonth(revenue: $revenue, date: $date);
         }
 
-        // TODO: excluir mês atual e próximos
+        // excluir mês atual e próximos
         if (
             $revenue->recurrent
             && $type === Revenues::CURRENT_MONTH_AND_FOLLOWERS
             && !isSameMonthAndYear($date, $revenue->receiving_date)
         ) {
-            return false;
+            return $this->deleteInCurrentAndUpcomingMonths(revenue: $revenue, date: $date);
         }
 
         return $revenue->forceDelete();
+    }
+
+    private function deleteInCurrentAndUpcomingMonths(Revenues $revenue, Carbon $date, ): bool
+    {
+        return $revenue->update([
+            'deprecated_date' => $date->subMonths(1)->toDateString(),
+        ]);
+    }
+
+    private function deleteOnlyInCurrentMonth(Revenues $revenue, Carbon $date): bool {
+        $override = $revenue->overrides()->whereMonth('receiving_date', '=', $date->month)
+                        ->whereYear('receiving_date', '=', $date->year)
+                        ->first();
+
+        if ($override) {
+            $override->is_deleted = true;
+            return $override->save();
+        }
+
+        return RevenuesOverrides::query()->create([
+            'revenues_id' => $revenue->id,
+            'receiving_date' => $date->toDateString(),
+            'is_deleted' => true,
+        ])->save();
     }
 }
