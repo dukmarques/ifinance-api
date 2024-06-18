@@ -19,9 +19,10 @@ class RevenuesOverridesFactory extends Factory
     {
         return [
             'title' => fake()->word(),
-            'amount' => fake()->randomDigit(),
+            'amount' => fake()->randomNumber(5, true),
             'receiving_date' => Carbon::now(),
             'description' => fake()->text(300),
+            'is_deleted' => false,
         ];
     }
 }
