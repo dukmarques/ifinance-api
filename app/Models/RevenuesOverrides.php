@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class RevenuesOverrides extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes;
+    use HasFactory, HasUuids;
 
     protected $fillable = [
         'id',
@@ -19,6 +19,7 @@ class RevenuesOverrides extends Model
         'receiving_date',
         'description',
         'revenues_id',
+        'is_deleted',
     ];
 
     public function revenues(): BelongsTo

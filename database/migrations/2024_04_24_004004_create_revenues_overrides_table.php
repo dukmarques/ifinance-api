@@ -18,8 +18,8 @@ return new class extends Migration
             $table->date('receiving_date')
                 ->index('receiving_date_update_index');
             $table->string('description', length: 300)->nullable();
+            $table->boolean('is_deleted')->default(false);
             $table->timestamps();
-            $table->softDeletes();
 
             $table->foreignUuid('revenues_id')->references('id')->on('revenues');
         });
