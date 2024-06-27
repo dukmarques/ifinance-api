@@ -16,15 +16,15 @@ return new class extends Migration
             $table->string('title', length: 100);
             $table->unsignedInteger('amount');
             $table->date('receiving_date')
-                ->index('receiving_date_index')
+                ->index()
                 ->comment('This column represents the month in which the money will be considered when calculating income versus expenses.');
             $table->date('deprecated_date')->nullable();
-            $table->boolean('recurrent');
+            $table->boolean('recurrent')->index();
             $table->string('description', length: 300);
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreignUuid('user_id')->references('id')->on('users');
+            $table->foreignUuid('user_id')->index()->references('id')->on('users');
             $table->foreignUuid('category_id')->nullable()->references('id')->on('categories');
         });
     }

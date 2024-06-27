@@ -15,13 +15,12 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('title', length: 100)->nullable();
             $table->unsignedInteger('amount')->nullable();
-            $table->date('receiving_date')
-                ->index('receiving_date_update_index');
+            $table->date('receiving_date')->index();
             $table->string('description', length: 300)->nullable();
             $table->boolean('is_deleted')->default(false);
             $table->timestamps();
 
-            $table->foreignUuid('revenues_id')->references('id')->on('revenues');
+            $table->foreignUuid('revenues_id')->index()->references('id')->on('revenues');
         });
     }
 

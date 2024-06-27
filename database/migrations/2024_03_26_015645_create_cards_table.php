@@ -19,7 +19,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreignUuid('user_id')->references('id')->on('users');
+            $table->foreignUuid('user_id')->index()->references('id')->on('users');
         });
     }
 
