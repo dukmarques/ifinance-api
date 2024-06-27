@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CreateExpenseRequest;
 use App\Models\Expenses;
 use App\Services\ExpensesService;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class ExpensesController extends Controller
 {
@@ -24,9 +26,17 @@ class ExpensesController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(CreateExpenseRequest $request)
     {
-        //
+        try {
+            $create = $this->service->store($request->all());
+
+            return response()->json($create, Response::HTTP_CREATED);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage()
+            ], Response::HTTP_BAD_REQUEST);
+        }
     }
 
     /**
