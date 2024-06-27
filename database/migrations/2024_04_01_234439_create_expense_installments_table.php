@@ -13,14 +13,15 @@ return new class extends Migration
     {
         Schema::create('expense_installments', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->integer('amount');
+            $table->unsignedInteger('amount');
             $table->boolean('paid')->default(false);
-            $table->unsignedInteger('parcel_number');
-            $table->date('pay_month')->comment('Stores the month the transaction belongs to, not the date the transaction was made');
+            $table->unsignedInteger('installment_number');
+            $table->date('payment_month')->index();
+            $table->string('notes', length: 300);
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreignUuid('expenses_id')->references('id')->on('expenses');
+            $table->foreignUuid('expense_id')->index()->references('id')->on('expenses');
         });
     }
 

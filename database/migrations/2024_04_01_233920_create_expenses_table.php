@@ -13,15 +13,17 @@ return new class extends Migration
     {
         Schema::create('expenses', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('title');
-            $table->integer('full_amount');
+            $table->string('title', 100);
+            $table->enum('type', ['simple', 'recurrent', 'installments'])->default('simple')->index();
+            $table->unsignedInteger('total_amount');
             $table->boolean('is_owner');
-            $table->date('date');
-            $table->boolean('fully_paid')->default(false);
+            $table->boolean('paid')->default(false);
+            $table->date('payment_month')->index();
+            $table->date('deprecated_date')->nullable()->index();
+            $table->string('description', 300)->nullable();
             $table->timestamps();
-            $table->softDeletes();
 
-            $table->foreignUuid('user_id')->references('id')->on('users');
+            $table->foreignUuid('user_id')->index()->references('id')->on('users');
             $table->foreignUuid('card_id')->nullable()->references('id')->on('cards');
             $table->foreignUuid('category_id')->nullable()->references('id')->on('categories');
         });
