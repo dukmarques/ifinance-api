@@ -3,22 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\Expenses;
+use App\Services\ExpensesService;
 use Illuminate\Http\Request;
 
 class ExpensesController extends Controller
 {
+    private ExpensesService $service;
+    public function __construct(ExpensesService $service) {
+        $this->service = $service;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
     {
         //
     }
@@ -35,14 +33,6 @@ class ExpensesController extends Controller
      * Display the specified resource.
      */
     public function show(Expenses $expenses)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Expenses $expenses)
     {
         //
     }

@@ -6,19 +6,18 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
-class ExpenseInstallments extends Model
+class ExpensesOverride extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes;
+    use HasFactory, HasUuids;
 
     protected $fillable = [
         'id',
-        'amount',
-        'paid',
-        'installment_number',
+        'title',
+        'total_amount',
+        'is_deleted',
         'payment_month',
-        'notes',
+        'description',
         'expense_id',
     ];
 

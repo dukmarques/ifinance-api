@@ -19,14 +19,24 @@ class Expenses extends Model
     protected $fillable = [
         'id',
         'title',
-        'full_amount',
+        'type',
+        'total_amount',
         'is_owner',
-        'date',
-        'fully_paid',
+        'paid',
+        'payment_month',
+        'deprecated_date',
+        'description',
+        'user_id',
+        'card_id',
+        'category_id',
     ];
 
     public function installments(): HasMany {
         return $this->hasMany(ExpenseInstallments::class);
+    }
+
+    public function overrides(): HasMany {
+        return $this->hasMany(ExpensesOverride::class);
     }
     public function user(): BelongsTo {
         return $this->belongsTo(User::class);
