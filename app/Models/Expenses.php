@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[ScopedBy(AuthScope::class)]
 class Expenses extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes;
+    use HasFactory, HasUuids;
 
     protected $fillable = [
         'id',
@@ -32,7 +32,7 @@ class Expenses extends Model
     ];
 
     public function installments(): HasMany {
-        return $this->hasMany(ExpenseInstallments::class);
+        return $this->hasMany(ExpenseInstallments::class, 'expense_id', 'id');
     }
 
     public function overrides(): HasMany {

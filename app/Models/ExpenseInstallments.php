@@ -23,6 +23,6 @@ class ExpenseInstallments extends Model
     ];
 
     public function expense(): BelongsTo {
-        return $this->belongsTo(Expenses::class);
+        return $this->belongsTo(Expenses::class, 'id', 'expense_id');
     }
 }
