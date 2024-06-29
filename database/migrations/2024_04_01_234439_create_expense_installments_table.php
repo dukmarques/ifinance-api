@@ -17,7 +17,7 @@ return new class extends Migration
             $table->boolean('paid')->default(false);
             $table->unsignedInteger('installment_number');
             $table->date('payment_month')->index();
-            $table->string('notes', length: 300);
+            $table->string('notes', length: 300)->nullable();
             $table->timestamps();
             $table->softDeletes();
 
