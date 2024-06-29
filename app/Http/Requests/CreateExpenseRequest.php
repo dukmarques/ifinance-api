@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Validator;
 
 class CreateExpenseRequest extends FormRequest
@@ -12,7 +13,7 @@ class CreateExpenseRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return Auth::check();
     }
 
     /**
@@ -30,8 +31,8 @@ class CreateExpenseRequest extends FormRequest
             'paid' => 'filled|boolean',
             'payment_month' => 'required|date',
             'deprecated_date' => 'filled|date',
-            'initial_installment' => 'filled|integer|min:1',
-            'final_installment' => 'filled|integer',
+            'initial_installment' => 'filled|integer|min:1|required_if:type,installments',
+            'final_installment' => 'filled|integer|required_with:initial_installment|gt:initial_installment',
             'description' => 'filled|string|max:300',
             'card_id' => 'required|exists:cards,id',
             'category_id' => 'required|exists:categories,id',
@@ -52,7 +53,14 @@ class CreateExpenseRequest extends FormRequest
                     if (isSameMonthAndYear($paymentMonth, $deprecatedDate)) {
                         $validator->errors()->add(
                             'deprecated_date',
-                            'The deprecated date must be a date after the payment month.'
+                            'The deprecated date must be a date after the payment month.',
+                        );
+                    }
+
+                    if (isDateGreaterThan($paymentMonth, $deprecatedDate)) {
+                        $validator->errors()->add(
+                            'payment_month',
+                            'The payment month must not be greater than the deprecated month.',
                         );
                     }
                 }
