@@ -27,6 +27,7 @@ class ExpenseResource extends JsonResource
             'category_id' => $this->category_id,
             'card_id' => $this->card_id,
             'user_id' => $this->user_id,
+            'installments' => ExpenseInstallmentsResource::collection($this->whenLoaded('installments')),
         ];
     }
 }
