@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\ExpensesOverride;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -28,6 +29,7 @@ class ExpenseResource extends JsonResource
             'card_id' => $this->card_id,
             'user_id' => $this->user_id,
             'installments' => ExpenseInstallmentsResource::collection($this->whenLoaded('installments')),
+            'overrides' => ExpenseOverrideResource::collection($this->whenLoaded('overrides')),
         ];
     }
 }

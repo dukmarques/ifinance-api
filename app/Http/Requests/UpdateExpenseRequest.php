@@ -7,14 +7,16 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Validator;
 
-class CreateExpenseRequest extends FormRequest
+class UpdateExpenseRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return Auth::check();
+        $expenseId = $this->route('expense');
+        $expense = Expenses::query()->findOrFail($expenseId);
+        return Auth::check() && $expense->user_id === Auth::id();
     }
 
     /**
@@ -25,18 +27,19 @@ class CreateExpenseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|string|max:100',
-            'type' => 'required|in:' . implode(',', Expenses::$expenseTypes),
-            'total_amount' => 'required|numeric|min:1',
-            'is_owner' => 'required|boolean',
+            'title' => 'filled|string|max:100',
+            'type' => 'filled|in:' . implode(',', Expenses::$expenseTypes),
+            'total_amount' => 'filled|numeric|min:1',
+            'is_owner' => 'filled|boolean',
             'paid' => 'filled|boolean',
-            'payment_month' => 'required|date',
+            'payment_month' => 'filled|date',
             'deprecated_date' => 'filled|date',
             'initial_installment' => 'filled|integer|min:1|required_if:type,installments',
             'final_installment' => 'filled|integer|required_with:initial_installment|gt:initial_installment',
             'description' => 'filled|string|max:300',
             'card_id' => 'filled|exists:cards,id',
             'category_id' => 'filled|exists:categories,id',
+            'recurrence_update_type' => 'filled|in:' . implode(',', Expenses::$editTypes),
         ];
     }
 

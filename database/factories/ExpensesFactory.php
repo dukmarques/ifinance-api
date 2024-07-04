@@ -33,9 +33,9 @@ class ExpensesFactory extends Factory
             'payment_month' => Carbon::now()->toDateString(),
             'deprecated_date' => null,
             'description' => fake()->text(300),
-            'user_id' => $user->id || null,
-            'card_id' => $card->id || null,
-            'category_id' => $category->id || null,
+            'user_id' => $user->id,
+            'card_id' => $card?->id ?: null,
+            'category_id' => $category?->id ?: null,
         ];
     }
 }

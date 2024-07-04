@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateExpenseRequest;
+use App\Http\Requests\UpdateExpenseRequest;
+use App\Http\Resources\ExpenseResource;
 use App\Models\Expenses;
 use App\Services\ExpensesService;
 use Illuminate\Http\Request;
@@ -50,9 +52,21 @@ class ExpensesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Expenses $expenses)
+    public function update(UpdateExpenseRequest $request, string $id)
     {
-        //
+        try {
+            $update = $this->service->update($id, $request->all());
+
+            if (!$update) {
+                return response()->json(['message' => 'Expense not found'], Response::HTTP_NOT_FOUND);
+            }
+
+            return response()->json($update);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage()
+            ], Response::HTTP_BAD_REQUEST);
+        }
     }
 
     /**

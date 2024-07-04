@@ -16,6 +16,26 @@ class Expenses extends Model
 {
     use HasFactory, HasUuids;
 
+    const EDIT_TYPE_ONLY_MONTH = 'only_month';
+    const EDIT_TYPE_CURRENT_AND_FUTURE = 'current_and_future';
+    const EDIT_TYPE_ALL = 'all';
+
+    public static array $editTypes = [
+        self::EDIT_TYPE_ONLY_MONTH,
+        self::EDIT_TYPE_CURRENT_AND_FUTURE,
+        self::EDIT_TYPE_ALL,
+    ];
+
+    const TYPE_SIMPLE = 'simple';
+    const TYPE_RECURRENT = 'recurrent';
+    const TYPE_INSTALLMENTS = 'installments';
+
+    public static array $expenseTypes = [
+        self::TYPE_SIMPLE,
+        self::TYPE_RECURRENT,
+        self::TYPE_INSTALLMENTS,
+    ];
+
     protected $fillable = [
         'id',
         'title',
@@ -36,7 +56,7 @@ class Expenses extends Model
     }
 
     public function overrides(): HasMany {
-        return $this->hasMany(ExpensesOverride::class);
+        return $this->hasMany(ExpensesOverride::class, 'expense_id', 'id');
     }
     public function user(): BelongsTo {
         return $this->belongsTo(User::class);
