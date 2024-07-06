@@ -13,17 +13,21 @@ it('get all cards', function () {
         'user_id' => $this->user->id,
     ]);
 
-    $response = actingAs($this->user)->getJson("/api/cards");
-    $response->assertStatus(200)
+    actingAs($this->user)
+        ->getJson("/api/cards")
+        ->assertStatus(200)
         ->assertJsonIsArray()
         ->assertJsonCount(3);
+
+    expect(Card::query()->count())->toBe(3);
 });
 
 it('get a card by id', function () {
     $card = Card::factory()->create(['user_id' => $this->user->id]);
 
-    $response = actingAs($this->user)->getJson("/api/cards/{$card->id}");
-    $response->assertStatus(200)
+    actingAs($this->user)
+        ->getJson("/api/cards/{$card->id}")
+        ->assertStatus(200)
         ->assertJsonFragment([
             'name' => $card->name,
             'closing_date' => $card->closing_date,
@@ -33,8 +37,9 @@ it('get a card by id', function () {
 });
 
 it('get a non-existent card', function () {
-    $response = actingAs($this->user)->getJson("/api/cards/123");
-    $response->assertStatus(404)
+    actingAs($this->user)
+        ->getJson("/api/cards/123")
+        ->assertStatus(404)
         ->assertJsonFragment([
             'message' => 'Card not found'
         ]);
@@ -47,14 +52,15 @@ it('register a credit card', function () {
         'due_date' => fake()->date()
     ];
 
-    $response = actingAs($this->user)->postJson("/api/cards", $data);
-    $response->assertStatus(201)
+    actingAs($this->user)
+        ->postJson("/api/cards", $data)
+        ->assertStatus(201)
         ->assertJsonFragment($data);
 });
 
 it('get all cards without login', function() {
-    $response = getJson("/api/cards");
-    $response->assertStatus(401)
+    getJson("/api/cards")
+        ->assertStatus(401)
         ->assertJsonFragment([
             'message' => 'Unauthenticated.'
         ]);
@@ -68,8 +74,9 @@ it('update a card', function () {
         'due_date' => fake()->date()
     ];
 
-    $response = actingAs($this->user)->putJson("/api/cards/{$card->id}", $data);
-    $response->assertStatus(200)
+    actingAs($this->user)
+        ->putJson("/api/cards/{$card->id}", $data)
+        ->assertStatus(200)
         ->assertJsonFragment($data);
 });
 
@@ -80,8 +87,9 @@ it('update a card with invalid id', function () {
         'due_date' => fake()->date()
     ];
 
-    $response = actingAs($this->user)->putJson("/api/cards/123", $data);
-    $response->assertStatus(404)
+    actingAs($this->user)
+        ->putJson("/api/cards/123", $data)
+        ->assertStatus(404)
         ->assertJsonFragment([
             'message' => 'Card not found'
         ]);
@@ -90,16 +98,18 @@ it('update a card with invalid id', function () {
 it('delete a card', function () {
     $card = Card::factory()->create(['user_id' => $this->user->id]);
 
-    $response = actingAs($this->user)->deleteJson("/api/cards/{$card->id}");
-    $response->assertStatus(200)
+    actingAs($this->user)
+        ->deleteJson("/api/cards/{$card->id}")
+        ->assertStatus(200)
         ->assertJsonFragment([
             'message' => 'Card deleted successfully'
         ]);
 });
 
 it('delete a card with invalid id', function () {
-    $response = actingAs($this->user)->deleteJson("/api/cards/123");
-    $response->assertStatus(404)
+    actingAs($this->user)
+        ->deleteJson("/api/cards/123")
+        ->assertStatus(404)
         ->assertJsonFragment([
             'message' => 'Card not found'
         ]);

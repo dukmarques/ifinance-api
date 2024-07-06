@@ -10,7 +10,7 @@ class CardService
 {
     public function index(): Collection|array
     {
-        return Card::withCount('installments')
+        return Card::withCount('cardExpenses')
             ->get();
     }
 
