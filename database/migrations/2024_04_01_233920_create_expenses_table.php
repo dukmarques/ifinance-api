@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('expenses', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('title', 100);
-            $table->enum('type', ['simple', 'recurrent', 'installments'])->default('simple')->index();
-            $table->unsignedInteger('total_amount');
+            $table->enum('type', ['simple', 'recurrent'])->default('simple')->index();
+            $table->unsignedInteger('amount');
             $table->boolean('is_owner');
             $table->boolean('paid')->default(false);
             $table->date('payment_month')->index();

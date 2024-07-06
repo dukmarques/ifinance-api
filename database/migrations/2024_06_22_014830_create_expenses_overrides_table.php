@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('expenses_overrides', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('title', 100)->nullable();
-            $table->unsignedInteger('total_amount')->nullable();
+            $table->unsignedInteger('amount')->nullable();
             $table->string('description', 300)->nullable();
             $table->boolean('is_deleted')->default(false);
             $table->date('payment_month')->index();
