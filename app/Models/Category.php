@@ -31,4 +31,8 @@ class Category extends Model
     public function expenses(): HasMany {
         return $this->hasMany(Expenses::class);
     }
+
+    public function cardExpenses(): HasMany {
+        return $this->hasMany(CardExpenses::class);
+    }
 }

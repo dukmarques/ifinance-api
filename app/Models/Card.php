@@ -35,7 +35,7 @@ class Card extends Model
         return $this->hasMany(Expenses::class);
     }
 
-    public function installments(): HasManyThrough {
-        return $this->hasManyThrough(ExpenseInstallments::class, Expenses::class);
+    public function cardExpenses(): HasMany {
+        return $this->hasMany(CardExpenses::class);
     }
 }
