@@ -21,18 +21,6 @@ class ExpensesService
 
     public function store(Array $data): ExpenseResource {
         $data['user_id'] = Auth::user()->id;
-        $expense = null;
-
-        if ($data['type'] == 'installments') {
-            DB::transaction(function () use ($data, &$expense) {
-                $expense = Expenses::query()->create($data);
-                $installments = $this->generateInstallmentsArray(data: $data, expense_id: $expense->id);
-                ExpenseInstallments::query()->insert($installments);
-            });
-
-            return new ExpenseResource($expense->load('installments'));
-        }
-
         $expense = Expenses::query()->create($data);
         return new ExpenseResource($expense);
     }
@@ -59,7 +47,18 @@ class ExpensesService
             return new ExpenseResource($expense);
         }
 
-        if ($expense->type === Expenses::TYPE_INSTALLMENTS) {}
+        if ($expense->type === Expenses::TYPE_INSTALLMENTS) {
+            $expenseData = collect($data)->only([
+                'title',
+                'is_owner',
+                'description',
+                'card_id',
+                'category_id',
+            ])->toArray();
+
+            $expense->update($expenseData);
+            return $expense->load('installments');
+        }
 
         $simpleExpenseData = collect($data)->only([
             'title',
@@ -77,27 +76,6 @@ class ExpensesService
     }
 
     public function delete(string $id) {}
-
-    private function generateInstallmentsArray($data, $expense_id): array {
-        $initial_installment = $data['initial_installment'];
-        $final_installment = $data['final_installment'];
-        $amount = $data['total_amount'] / $final_installment;
-        $paymentMonth = Carbon::parse($data['payment_month']);
-        $installments = [];
-
-        for ($i = $initial_installment; $i <= $final_installment; $i++) {
-            $installments[] = [
-                'id' => Str::uuid()->toString(),
-                'amount' => $amount,
-                'paid' => false,
-                'installment_number' => $i,
-                'payment_month' => $paymentMonth->copy()->addMonths($i - 1)->toDateString(),
-                'expense_id' => $expense_id,
-            ];
-        }
-
-        return $installments;
-    }
 
     private function updateRecurrentExpense(Expenses $expense, $data) {
         if ($data['recurrence_update_type'] === Expenses::EDIT_TYPE_CURRENT_AND_FUTURE) {

@@ -6,7 +6,8 @@ use App\Http\Controllers\CardsController;
 use App\Http\Controllers\RevenuesController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\ExpensesController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\CardExpensesController;
+use App\Http\Controllers\CardInstallmentsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/ping', function () {
@@ -28,4 +29,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('categories', CategoriesController::class);
     Route::apiResource('revenues', RevenuesController::class);
     Route::apiResource('expenses', ExpensesController::class);
+    Route::apiResource('card-expenses', CardExpensesController::class);
+    Route::apiResource('card-expenses.installments', CardInstallmentsController::class);
 });

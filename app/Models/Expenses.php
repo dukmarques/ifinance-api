@@ -28,12 +28,10 @@ class Expenses extends Model
 
     const TYPE_SIMPLE = 'simple';
     const TYPE_RECURRENT = 'recurrent';
-    const TYPE_INSTALLMENTS = 'installments';
 
     public static array $expenseTypes = [
         self::TYPE_SIMPLE,
         self::TYPE_RECURRENT,
-        self::TYPE_INSTALLMENTS,
     ];
 
     protected $fillable = [
@@ -50,10 +48,6 @@ class Expenses extends Model
         'card_id',
         'category_id',
     ];
-
-    public function installments(): HasMany {
-        return $this->hasMany(ExpenseInstallments::class, 'expense_id', 'id');
-    }
 
     public function overrides(): HasMany {
         return $this->hasMany(ExpensesOverride::class, 'expense_id', 'id');

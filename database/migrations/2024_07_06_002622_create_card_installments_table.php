@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('card_installments', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('title', 300);
+            $table->string('title', 100);
             $table->unsignedInteger('amount');
             $table->boolean('paid')->default(false);
             $table->unsignedInteger('installment_number')->index();
-            $table->date('pay_month')->index();
+            $table->date('payment_month')->index();
             $table->string('notes', 300)->nullable();
             $table->timestamps();
             $table->softDeletes();

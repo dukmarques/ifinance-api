@@ -37,8 +37,8 @@ class UpdateExpenseRequest extends FormRequest
             'initial_installment' => 'filled|integer|min:1|required_if:type,installments',
             'final_installment' => 'filled|integer|required_with:initial_installment|gt:initial_installment',
             'description' => 'filled|string|max:300',
-            'card_id' => 'filled|exists:cards,id',
-            'category_id' => 'filled|exists:categories,id',
+            'card_id' => 'exists:cards,id',
+            'category_id' => 'exists:categories,id',
             'recurrence_update_type' => 'filled|in:' . implode(',', Expenses::$editTypes),
         ];
     }

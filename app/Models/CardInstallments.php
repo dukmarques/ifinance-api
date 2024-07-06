@@ -18,9 +18,9 @@ class CardInstallments extends Model
         'amount',
         'paid',
         'installment_number',
-        'pay_month',
+        'payment_month',
         'notes',
-        'card_expense_id',
+        'card_expenses_id',
     ];
 
     public function expense(): BelongsTo {

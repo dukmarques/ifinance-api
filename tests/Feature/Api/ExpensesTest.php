@@ -222,61 +222,8 @@ describe('recurrent expense', function () {
 
         actingAs($this->user)
             ->putJson("/api/expenses/{$expense->id}", $updatedExpense)
-            ->assertStatus(Response::HTTP_OK)
-            ->dump();
+            ->assertStatus(Response::HTTP_OK);
 
         expect(ExpensesOverride::query()->count())->toBe(1);
-    });
-});
-
-describe('installments expenses', function () {
-    beforeEach(function (){
-        $this->expenseData['type'] = 'installments';
-        $this->expenseData['initial_installment'] = 1;
-        $this->expenseData['final_installment'] = 12;
-        $this->expenseData['installment_amount'] = ($this->expenseData['total_amount'] / $this->expenseData['final_installment']) * 100;
-    });
-
-    it('create a installment expense', function () {
-        actingAs($this->user)
-            ->postJson('/api/expenses', $this->expenseData)
-            ->assertStatus(Response::HTTP_CREATED);
-
-        expect(Expenses::query()->count())->toBe(1)
-            ->and(ExpenseInstallments::query()->count())->toBe($this->expenseData['final_installment']);
-    });
-
-    it('create a installment expense with initial installment greater than final installment', function () {
-        $this->expenseData['initial_installment'] = 10;
-        $this->expenseData['final_installment'] = 8;
-
-        actingAs($this->user)
-            ->postJson('/api/expenses', $this->expenseData)
-            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertJson([
-                'message' => 'The final installment field must be greater than 10.'
-            ]);
-    });
-
-    it('create a installment expense without initial installment', function () {
-        $this->expenseData['initial_installment'] = null;
-
-        actingAs($this->user)
-            ->postJson('/api/expenses', $this->expenseData)
-            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertJson([
-                'message' => 'The initial installment field must have a value. (and 1 more error)'
-            ]);
-    });
-
-    it('create a installment expense without final installment', function () {
-        $this->expenseData['final_installment'] = null;
-
-        actingAs($this->user)
-            ->postJson('/api/expenses', $this->expenseData)
-            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertJson([
-                'message' => 'The final installment field must have a value.'
-            ]);
     });
 });

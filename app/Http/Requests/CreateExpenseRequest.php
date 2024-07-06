@@ -32,8 +32,6 @@ class CreateExpenseRequest extends FormRequest
             'paid' => 'filled|boolean',
             'payment_month' => 'required|date',
             'deprecated_date' => 'filled|date',
-            'initial_installment' => 'filled|integer|min:1|required_if:type,installments',
-            'final_installment' => 'filled|integer|required_with:initial_installment|gt:initial_installment',
             'description' => 'filled|string|max:300',
             'card_id' => 'filled|exists:cards,id',
             'category_id' => 'filled|exists:categories,id',
