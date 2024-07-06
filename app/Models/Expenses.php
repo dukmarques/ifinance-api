@@ -38,7 +38,7 @@ class Expenses extends Model
         'id',
         'title',
         'type',
-        'total_amount',
+        'amount',
         'is_owner',
         'paid',
         'payment_month',

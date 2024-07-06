@@ -27,7 +27,7 @@ class CreateExpenseRequest extends FormRequest
         return [
             'title' => 'required|string|max:100',
             'type' => 'required|in:' . implode(',', Expenses::$expenseTypes),
-            'total_amount' => 'required|numeric|min:1',
+            'amount' => 'required|numeric|min:1',
             'is_owner' => 'required|boolean',
             'paid' => 'filled|boolean',
             'payment_month' => 'required|date',

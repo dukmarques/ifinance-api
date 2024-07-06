@@ -19,7 +19,7 @@ class ExpenseResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'type' => $this->type,
-            'total_amount' => ($this->total_amount / 100),
+            'amount' => ($this->amount / 100),
             'is_owner' => $this->is_owner,
             'paid' => $this->paid,
             'payment_month' => $this->payment_month,
@@ -28,7 +28,6 @@ class ExpenseResource extends JsonResource
             'category_id' => $this->category_id,
             'card_id' => $this->card_id,
             'user_id' => $this->user_id,
-            'installments' => ExpenseInstallmentsResource::collection($this->whenLoaded('installments')),
             'overrides' => ExpenseOverrideResource::collection($this->whenLoaded('overrides')),
         ];
     }

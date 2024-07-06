@@ -33,7 +33,7 @@ class ExpensesService
             $recurrentExpenseData = collect($data)->only([
                 'recurrence_update_type',
                 'title',
-                'total_amount',
+                'amount',
                 'is_owner',
                 'paid',
                 'payment_month',
@@ -47,22 +47,9 @@ class ExpensesService
             return new ExpenseResource($expense);
         }
 
-        if ($expense->type === Expenses::TYPE_INSTALLMENTS) {
-            $expenseData = collect($data)->only([
-                'title',
-                'is_owner',
-                'description',
-                'card_id',
-                'category_id',
-            ])->toArray();
-
-            $expense->update($expenseData);
-            return $expense->load('installments');
-        }
-
         $simpleExpenseData = collect($data)->only([
             'title',
-            'total_amount',
+            'amount',
             'is_owner',
             'paid',
             'payment_month',

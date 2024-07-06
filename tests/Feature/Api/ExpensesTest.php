@@ -22,8 +22,8 @@ beforeEach(function () {
     $this->date = Carbon::now();
     $this->expenseData = [
         'title' => fake()->text(20),
-        'type' => 'simple',
-        'total_amount' => fake()->randomNumber(5, true),
+        'type' => Expenses::TYPE_SIMPLE,
+        'amount' => fake()->randomNumber(5, true),
         'is_owner' => true,
         'paid' => false,
         'payment_month' => Carbon::now()->toDateString(),
@@ -40,7 +40,7 @@ describe('simple expense', function () {
             ->assertStatus(Response::HTTP_CREATED)
             ->assertJson([
                 ...$this->expenseData,
-                'total_amount' => ($this->expenseData['total_amount'] / 100),
+                'amount' => ($this->expenseData['amount'] / 100),
             ]);
     });
 
@@ -55,7 +55,7 @@ describe('simple expense', function () {
     it('create a simple expense without required attributes', function () {
         $this->expenseData['title'] = null;
         $this->expenseData['type'] = 'credit';
-        $this->expenseData['total_amount'] = null;
+        $this->expenseData['amount'] = null;
 
         actingAs($this->user)
             ->postJson('/api/expenses', $this->expenseData)
@@ -75,7 +75,7 @@ describe('simple expense', function () {
 
         $updatedExpense = [
             'title' => fake()->text(20),
-            'total_amount' => fake()->randomNumber(5, true),
+            'amount' => fake()->randomNumber(5, true),
             'is_owner' => false,
             'paid' => true,
             'payment_month' => Carbon::now()->addMonth()->toDateString(),
@@ -87,7 +87,7 @@ describe('simple expense', function () {
             ->assertStatus(Response::HTTP_OK)
             ->assertJson([
                 ...$updatedExpense,
-                'total_amount' => ($updatedExpense['total_amount'] / 100),
+                'amount' => ($updatedExpense['amount'] / 100),
             ]);
     });
 });
@@ -103,7 +103,7 @@ describe('recurrent expense', function () {
             ->assertStatus(Response::HTTP_CREATED)
             ->assertJson([
                 ...$this->expenseData,
-                'total_amount' => ($this->expenseData['total_amount'] / 100),
+                'amount' => ($this->expenseData['amount'] / 100),
             ]);
 
         expect(Expenses::query()->count())->toBe(1);
@@ -117,7 +117,7 @@ describe('recurrent expense', function () {
             ->assertStatus(Response::HTTP_CREATED)
             ->assertJson([
                 ...$this->expenseData,
-                'total_amount' => ($this->expenseData['total_amount'] / 100),
+                'amount' => ($this->expenseData['amount'] / 100),
             ]);
 
         expect(Expenses::query()->count())->toBe(1);
@@ -155,7 +155,7 @@ describe('recurrent expense', function () {
 
         $updatedExpense = [
             'title' => fake()->text(20),
-            'total_amount' => fake()->randomNumber(5, true),
+            'amount' => fake()->randomNumber(5, true),
             'is_owner' => false,
             'paid' => true,
             'payment_month' => Carbon::now()->addMonth()->toDateString(),
@@ -168,7 +168,7 @@ describe('recurrent expense', function () {
             ->assertStatus(Response::HTTP_OK)
             ->assertJson([
                 ...collect($updatedExpense)->except('recurrence_update_type')->toArray(),
-                'total_amount' => ($updatedExpense['total_amount'] / 100),
+                'amount' => ($updatedExpense['amount'] / 100),
             ]);
     });
 
@@ -182,7 +182,7 @@ describe('recurrent expense', function () {
 
         $updatedExpense = [
             'title' => fake()->text(20),
-            'total_amount' => fake()->randomNumber(5, true),
+            'amount' => fake()->randomNumber(5, true),
             'is_owner' => false,
             'paid' => true,
             'payment_month' => Carbon::now()->addMonth()->toDateString(),
@@ -197,7 +197,7 @@ describe('recurrent expense', function () {
                 ...collect($updatedExpense)
                     ->except(['recurrence_update_type', 'recurrence_update_date'])
                     ->toArray(),
-                'total_amount' => ($updatedExpense['total_amount'] / 100),
+                'amount' => ($updatedExpense['amount'] / 100),
                 'deprecated_date' => null,
             ]);
     });
@@ -212,7 +212,7 @@ describe('recurrent expense', function () {
 
         $updatedExpense = [
             'title' => fake()->text(20),
-            'total_amount' => fake()->randomNumber(5, true),
+            'amount' => fake()->randomNumber(5, true),
             'is_owner' => false,
             'paid' => true,
             'payment_month' => Carbon::now()->addMonth()->toDateString(),

@@ -14,7 +14,7 @@ class ExpensesOverride extends Model
     protected $fillable = [
         'id',
         'title',
-        'total_amount',
+        'amount',
         'is_deleted',
         'payment_month',
         'description',
