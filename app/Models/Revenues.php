@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Scopes\AuthScope;
+use App\Traits\HasEditTypes;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[ScopedBy([AuthScope::class])]
 class Revenues extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes;
+    use HasFactory, HasUuids, SoftDeletes, HasEditTypes;
 
     const ONLY_MONTH = 'only_month';
     const CURRENT_MONTH_AND_FOLLOWERS = 'current_month_and_followers';

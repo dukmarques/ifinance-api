@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Scopes\AuthScope;
+use App\Traits\HasEditTypes;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,17 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[ScopedBy(AuthScope::class)]
 class Expenses extends Model
 {
-    use HasFactory, HasUuids;
-
-    const EDIT_TYPE_ONLY_MONTH = 'only_month';
-    const EDIT_TYPE_CURRENT_AND_FUTURE = 'current_and_future';
-    const EDIT_TYPE_ALL = 'all';
-
-    public static array $editTypes = [
-        self::EDIT_TYPE_ONLY_MONTH,
-        self::EDIT_TYPE_CURRENT_AND_FUTURE,
-        self::EDIT_TYPE_ALL,
-    ];
+    use HasFactory, HasUuids, HasEditTypes;
 
     const TYPE_SIMPLE = 'simple';
     const TYPE_RECURRENT = 'recurrent';
