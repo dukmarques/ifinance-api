@@ -9,6 +9,7 @@ use App\Models\Card;
 use App\Models\CardExpenses;
 use App\Models\CardInstallments;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 
 beforeEach(function () {
     $this->url = '/api/card-expenses';
@@ -77,7 +78,90 @@ describe('create card expense', function () {
     });
 });
 
-describe('update card expense', function () {
-    it('update a installment expense', function () {
+describe('update credit card expense installment', function () {
+    beforeEach(function () {
+        $totalAmount = fake()->randomNumber(5, true);
+        $paymentMonth = Carbon::now();
+
+        $this->cardExpense = CardExpenses::factory()
+            ->has(
+                CardInstallments::factory()
+                    ->count(12)
+                    ->state(new Sequence(
+                        function ($sequence) use ($totalAmount, $paymentMonth) {
+                            return [
+                                'amount' => $totalAmount / 12,
+                                'payment_month' => $paymentMonth->copy()->addMonths($sequence->index),
+                                'installment_number' => $sequence->index + 1,
+                            ];
+                        }
+                    )),
+                'installments'
+            )
+            ->create([
+                'total_amount' => $totalAmount,
+                'user_id' => $this->user->id,
+                'card_id' => $this->card->id,
+                'category_id' => $this->category->id,
+            ]);
+
+        $this->url = "api/card-expenses/{$this->cardExpense->id}/installments";
+        $this->updateData = [
+            'title' => fake()->text(20),
+            'amount' => fake()->randomNumber(4, true),
+            'paid' => fake()->boolean(),
+            'notes' => fake()->text(300),
+        ];
+    });
+
+    it('every month', function () {
+        $installment = $this->cardExpense->installments[0];
+        $this->updateData['update_type'] = CardInstallments::EDIT_TYPE_ALL;
+
+        actingAs($this->user)
+            ->putJson("{$this->url}/{$installment->id}", $this->updateData)
+            ->assertStatus(Response::HTTP_OK);
+
+        $updateData = collect($this->updateData)->except('update_type')->toArray();
+        $twoInstallments = $this->cardExpense->installments[1];
+        expect(collect($installment->refresh())->only(['title', 'amount', 'paid', 'notes'])->toArray())
+            ->toBe($updateData)
+            ->and(collect($twoInstallments->refresh())->only(['title', 'amount', 'paid', 'notes'])->toArray())
+            ->toBe($updateData);
+    });
+
+    it('current month only', function () {
+        $this->updateData['update_type'] = CardInstallments::EDIT_TYPE_ONLY_MONTH;
+        $installment = $this->cardExpense->installments[fake()->numberBetween(0, 11)];
+
+        actingAs($this->user)
+            ->putJson("{$this->url}/{$installment->id}", $this->updateData)
+            ->assertStatus(Response::HTTP_OK);
+
+        $updateData = collect($this->updateData)->except('update_type')->toArray();
+        $installment = collect($installment->refresh())->only(['title', 'amount', 'paid', 'notes'])->toArray();
+        expect($installment)->toBe($updateData);
+    });
+
+    it('current and upcoming months', function () {
+        $this->updateData['update_type'] = CardInstallments::EDIT_TYPE_CURRENT_AND_FUTURE;
+        $installment = $this->cardExpense->installments[2];
+
+        actingAs($this->user)
+            ->putJson("{$this->url}/{$installment->id}", $this->updateData)
+            ->assertStatus(Response::HTTP_OK);
+
+        $updateData = collect($this->updateData)->except('update_type')->toArray();
+        $installmentNotUpdated = collect($this->cardExpense->installments[0])
+            ->only(['title', 'amount', 'paid', 'notes'])
+            ->toArray();
+        $lastInstallment = collect($this->cardExpense->installments[11]->refresh())
+            ->only(['title', 'amount', 'paid', 'notes'])
+            ->toArray();
+
+        expect(collect($installment->refresh())->only(['title', 'amount', 'paid', 'notes'])->toArray())
+            ->toBe($updateData)
+            ->and($installmentNotUpdated)->not()->toBe($updateData)
+            ->and($lastInstallment)->toBe($updateData);
     });
 });

@@ -23,7 +23,7 @@ class CardExpenses extends Model
     ];
 
     public function installments(): HasMany {
-        return $this->hasMany(CardInstallments::class);
+        return $this->hasMany(CardInstallments::class, 'card_expenses_id', 'id');
     }
 
     public function user(): BelongsTo {
