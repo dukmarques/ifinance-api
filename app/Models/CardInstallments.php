@@ -24,7 +24,11 @@ class CardInstallments extends Model
         'card_expenses_id',
     ];
 
+    protected $casts = [
+        'paid' => 'boolean',
+    ];
+
     public function expense(): BelongsTo {
-        return $this->belongsTo(CardExpenses::class);
+        return $this->belongsTo(CardExpenses::class, 'card_expenses_id', 'id');
     }
 }
