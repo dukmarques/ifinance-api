@@ -165,3 +165,69 @@ describe('update credit card expense installment', function () {
             ->and($lastInstallment)->toBe($updateData);
     });
 });
+
+describe('delete credit card expense installment', function (){
+    beforeEach(function () {
+        $totalAmount = fake()->randomNumber(5, true);
+        $paymentMonth = Carbon::now();
+
+        $this->cardExpense = CardExpenses::factory()
+            ->has(
+                CardInstallments::factory()
+                    ->count(12)
+                    ->state(new Sequence(
+                        function ($sequence) use ($totalAmount, $paymentMonth) {
+                            return [
+                                'amount' => $totalAmount / 12,
+                                'payment_month' => $paymentMonth->copy()->addMonths($sequence->index),
+                                'installment_number' => $sequence->index + 1,
+                            ];
+                        }
+                    )),
+                'installments'
+            )
+            ->create([
+                'total_amount' => $totalAmount,
+                'user_id' => $this->user->id,
+                'card_id' => $this->card->id,
+                'category_id' => $this->category->id,
+            ]);
+
+        $this->url = "api/card-expenses/{$this->cardExpense->id}/installments";
+    });
+
+    it('all installments', function () {
+        $installment = $this->cardExpense->installments[0];
+
+        actingAs($this->user)
+            ->deleteJson("{$this->url}/{$installment->id}", ['delete_type' => CardInstallments::EDIT_TYPE_ALL])
+            ->assertStatus(Response::HTTP_OK)
+            ->assertJson(['message' => 'Expense successfully removed']);
+
+        expect(CardExpenses::query()->find($this->cardExpense->id))->toBe(null)
+            ->and(CardInstallments::query()->count())->toBe(0);
+    });
+
+    it('current month only', function () {
+        $installment = $this->cardExpense->installments[fake()->numberBetween(0, 11)];
+
+        actingAs($this->user)
+            ->deleteJson("{$this->url}/{$installment->id}", ['delete_type' => CardInstallments::EDIT_TYPE_ONLY_MONTH])
+            ->assertStatus(Response::HTTP_OK)
+            ->assertJson(['message' => 'Expense installment successfully removed']);
+
+        expect(CardInstallments::query()->find($installment->id))->toBe(null);
+    });
+
+    it('current and upcoming months', function () {
+        $installment = $this->cardExpense->installments[1];
+
+        actingAs($this->user)
+            ->deleteJson("{$this->url}/{$installment->id}", ['delete_type' => CardInstallments::EDIT_TYPE_CURRENT_AND_FUTURE])
+            ->assertStatus(Response::HTTP_OK)
+            ->assertJson(['message' => 'Current and upcoming installments successfully deleted']);
+
+        expect(CardInstallments::query()->find($installment->id))->toBe(null)
+            ->and(CardInstallments::query()->count())->toBe(1);
+    });
+});

@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreignUuid('card_expenses_id')->index()->references('id')->on('card_expenses');
+            $table->foreignUuid('card_expenses_id')->index()->references('id')->on('card_expenses')->onDelete('cascade');
         });
     }
 
