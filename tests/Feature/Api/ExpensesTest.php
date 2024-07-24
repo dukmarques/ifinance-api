@@ -2,12 +2,11 @@
 
 use Carbon\Carbon;
 use function Pest\Faker\fake;
-use function Pest\Laravel\{getJson, postJson, actingAs};
+use function Pest\Laravel\{postJson, actingAs};
 use App\Models\User;
 use App\Models\Category;
 use \App\Models\Card;
 use \App\Models\Expenses;
-use \App\Models\ExpenseInstallments;
 use \App\Models\ExpensesOverride;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -89,6 +88,33 @@ describe('simple expense', function () {
                 ...$updatedExpense,
                 'amount' => ($updatedExpense['amount'] / 100),
             ]);
+    });
+
+    it('delete a simple expense', function (){
+        $expense = Expenses::factory()->createOne([
+            ...$this->expenseData,
+            'user_id' => $this->user->id,
+        ]);
+
+        actingAs($this->user)
+            ->deleteJson("/api/expenses/{$expense->id}", [
+                'delete_type' => Expenses::DELETE_TYPE_SIMPLE,
+            ])
+            ->assertStatus(Response::HTTP_NO_CONTENT);
+
+        expect(Expenses::query()->find($expense->id))->toBeNull();
+    });
+
+    it('delete a simple expense without delete  type', function () {
+        $expense = Expenses::factory()->createOne([
+            ...$this->expenseData,
+            'user_id' => $this->user->id,
+        ]);
+
+        actingAs($this->user)
+            ->deleteJson("/api/expenses/{$expense->id}")
+            ->assertStatus(Response::HTTP_BAD_REQUEST)
+            ->assertJson(['message' => 'The delete type field is required.']);
     });
 });
 

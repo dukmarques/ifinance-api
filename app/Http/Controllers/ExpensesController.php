@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateExpenseRequest;
 use App\Http\Requests\UpdateExpenseRequest;
-use App\Http\Resources\ExpenseResource;
 use App\Models\Expenses;
 use App\Services\ExpensesService;
 use Illuminate\Http\Request;
@@ -72,8 +71,26 @@ class ExpensesController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Expenses $expenses)
+    public function destroy(string $id, Request $request)
     {
-        //
+        try {
+            $this->validate($request, [
+                'delete_type' => 'required|in:' . implode(',', Expenses::$deleteTypes),
+            ]);
+
+            $delete = $this->service->destroy($id, $request->input('delete_type'));
+
+            if (!$delete) {
+                return response()->json([
+                    'message' => 'Expense not found'
+                ], Response::HTTP_NOT_FOUND);
+            }
+
+            return response()->noContent();
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage(),
+            ], Response::HTTP_BAD_REQUEST);
+        }
     }
 }

@@ -3,15 +3,8 @@
 namespace App\Services;
 
 use App\Http\Resources\ExpenseResource;
-use App\Models\ExpenseInstallments;
 use App\Models\Expenses;
-use App\Models\ExpensesOverride;
-use Carbon\Carbon;
-use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class ExpensesService
 {
@@ -95,5 +88,17 @@ class ExpensesService
 
         $expense->update($data);
         return $expense;
+    }
+
+    public function destroy(string $id, string $delete_type) {
+        $expense = Expenses::query()->findOrFail($id);
+
+        if (!$expense) {
+            return null;
+        }
+
+        // if ($expense->type === Expenses::TYPE_RECURRENT) {}
+
+        return $expense->delete();
     }
 }

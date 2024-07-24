@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Scopes\AuthScope;
+use App\Traits\HasDeleteTypes;
 use App\Traits\HasEditTypes;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[ScopedBy(AuthScope::class)]
 class Expenses extends Model
 {
-    use HasFactory, HasUuids, HasEditTypes;
+    use HasFactory, HasUuids, HasEditTypes, HasDeleteTypes;
 
     const TYPE_SIMPLE = 'simple';
     const TYPE_RECURRENT = 'recurrent';
