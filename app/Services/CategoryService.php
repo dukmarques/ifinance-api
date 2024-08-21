@@ -2,38 +2,16 @@
 
 namespace App\Services;
 
+use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 
-class CategoryService
+class CategoryService extends BaseService
 {
-    public function index(): Collection {
-        return Category::withCount(['revenues', 'expenses'])
-            ->get();
-    }
-
-    public function show(string $id): Category|null {
-        return Category::find($id);
-    }
-
-    public function store($data): Category|null {
-        $data['user_id'] = Auth::id();
-        return Category::create($data);
-    }
-
-    public function update($id, $data): Category|null {
-        $category = Category::find($id);
-
-        if (!$category) {
-            return null;
-        }
-
-        $category->update($data);
-        return $category;
-    }
-
-    public function destroy($id): bool {
-        return Category::destroy($id);
+    public function __construct()
+    {
+        $this->model = Category::class;
+        $this->resourceClass = CategoryResource::class;
     }
 }
