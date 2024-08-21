@@ -1,13 +1,13 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\UsersController;
-use App\Http\Controllers\CardsController;
-use App\Http\Controllers\RevenuesController;
-use App\Http\Controllers\CategoriesController;
-use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\CardExpensesController;
 use App\Http\Controllers\CardInstallmentsController;
+use App\Http\Controllers\CardsController;
+use App\Http\Controllers\CategoriesController;
+use App\Http\Controllers\ExpensesController;
+use App\Http\Controllers\RevenuesController;
+use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/ping', function () {
