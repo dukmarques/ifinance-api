@@ -4,21 +4,16 @@ namespace App\Services;
 
 use App\Http\Resources\ExpenseResource;
 use App\Models\Expenses;
-use Illuminate\Support\Facades\Auth;
 
-class ExpensesService
+class ExpensesService extends BaseService
 {
-    public function index() {}
-
-    public function show(string $id) {}
-
-    public function store(Array $data): ExpenseResource {
-        $data['user_id'] = Auth::user()->id;
-        $expense = Expenses::query()->create($data);
-        return new ExpenseResource($expense);
+    public function __construct()
+    {
+        $this->model = Expenses::class;
+        $this->resourceClass = ExpenseResource::class;
     }
 
-    public function update(string $id, Array $data): ExpenseResource
+    public function update(string $id, array $data): ExpenseResource
     {
         $expense = Expenses::query()->findOrFail($id);
 
@@ -55,9 +50,12 @@ class ExpensesService
         return new ExpenseResource($expense);
     }
 
-    public function delete(string $id) {}
+    public function delete(string $id)
+    {
+    }
 
-    private function updateRecurrentExpense(Expenses $expense, $data) {
+    private function updateRecurrentExpense(Expenses $expense, $data)
+    {
         if ($data['recurrence_update_type'] === Expenses::EDIT_TYPE_CURRENT_AND_FUTURE) {
             $date = createCarbonDateFromString($data['payment_month']);
 
@@ -73,7 +71,7 @@ class ExpensesService
             ]);
 
             return $newExpense;
-        } else if ($data['recurrence_update_type'] === Expenses::EDIT_TYPE_ONLY_MONTH) {
+        } elseif ($data['recurrence_update_type'] === Expenses::EDIT_TYPE_ONLY_MONTH) {
             $date = createCarbonDateFromString($data['payment_month']);
 
             $expense->overrides()->create([
@@ -90,12 +88,9 @@ class ExpensesService
         return $expense;
     }
 
-    public function destroy(string $id, string $delete_type) {
+    public function destroy(string $id, string $delete_type = null): bool
+    {
         $expense = Expenses::query()->findOrFail($id);
-
-        if (!$expense) {
-            return null;
-        }
 
         // if ($expense->type === Expenses::TYPE_RECURRENT) {}
 
