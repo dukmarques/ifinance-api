@@ -14,8 +14,9 @@ it('get all categories', function () {
 
     $response = actingAs($this->user)->getJson("/api/categories");
     $response->assertStatus(200)
-        ->assertJsonIsArray()
-        ->assertJsonCount(3);
+        ->assertJsonCount(3, 'data');
+
+    expect(Category::query()->count())->toBe(3);
 });
 
 it('get all categories without login', function () {
