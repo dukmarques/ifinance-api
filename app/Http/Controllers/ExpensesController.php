@@ -9,63 +9,13 @@ use App\Services\ExpensesService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class ExpensesController extends Controller
+class ExpensesController extends BaseController
 {
-    private ExpensesService $service;
-    public function __construct(ExpensesService $service) {
+    public function __construct(ExpensesService $service)
+    {
         $this->service = $service;
-    }
-
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(CreateExpenseRequest $request)
-    {
-        try {
-            $create = $this->service->store($request->all());
-
-            return response()->json($create, Response::HTTP_CREATED);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage()
-            ], Response::HTTP_BAD_REQUEST);
-        }
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Expenses $expenses)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateExpenseRequest $request, string $id)
-    {
-        try {
-            $update = $this->service->update($id, $request->all());
-
-            if (!$update) {
-                return response()->json(['message' => 'Expense not found'], Response::HTTP_NOT_FOUND);
-            }
-
-            return response()->json($update);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage()
-            ], Response::HTTP_BAD_REQUEST);
-        }
+        $this->storeFormRequest = CreateExpenseRequest::class;
+        $this->updateFormRequest = UpdateExpenseRequest::class;
     }
 
     /**
