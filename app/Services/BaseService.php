@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Http\Resources\ExpenseResource;
+use App\Models\Card;
 use App\Models\Expenses;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
@@ -15,8 +16,12 @@ class BaseService
 
     public function index()
     {
-        $resources = $this->model::query()->get();
-        return $this->resourceClass::collection($resources);
+        $request = request();
+        $paginate = $request->boolean('paginate', true);
+
+        $query = $this->model::query();
+        $resources = $paginate ? $query->simplePaginate() : $query->get();
+        return $this->resourceClass::collection($resources)->response()->getData(true);
     }
 
     public function show(string $id): JsonResource|null
