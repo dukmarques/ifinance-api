@@ -2,34 +2,24 @@
 
 namespace App\Services;
 
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use phpDocumentor\Reflection\Types\Null_;
 
-class UserService
+class UserService extends BaseService
 {
-    public function index(): Collection {
-        return User::all();
+    public function __construct()
+    {
+        $this->model = User::class;
+        $this->resourceClass = UserResource::class;
     }
 
-    public function store($data): User {
+    public function store($data): UserResource
+    {
         $data['password'] = Hash::make($data['password']);
-        return User::create($data);
-    }
-
-    public function show(): User|null {
-        return Auth::user();
-    }
-
-    public function update($data): User|null {
-        $user = Auth::user();
-
-        $user->update($data);
-        return $user;
-    }
-
-    public function destroy($id): bool {
-        return User::destroy($id);
+        return new UserResource(User::query()->create($data));
     }
 }

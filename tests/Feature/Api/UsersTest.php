@@ -1,8 +1,9 @@
 <?php
 
+use App\Models\User;
+
 use function Pest\Faker\fake;
 use function Pest\Laravel\{postJson, actingAs};
-use App\Models\User;
 
 it('create an user', function () {
     $data = [

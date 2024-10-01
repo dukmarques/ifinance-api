@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\UserService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Password;
 
 class UsersController extends Controller
@@ -28,7 +29,7 @@ class UsersController extends Controller
      */
     public function show()
     {
-        $user = $this->service->show();
+        $user = $this->service->show(Auth::id());
 
         if(!$user) {
             return response()->json([
@@ -81,7 +82,7 @@ class UsersController extends Controller
                 'email' => 'filled|email'
             ]);
 
-            $user = $this->service->update($request->all());
+            $user = $this->service->update(Auth::id(), $request->all());
             return response()->json($user);
         } catch (\Throwable $err) {
             return response()->json([

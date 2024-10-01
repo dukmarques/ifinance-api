@@ -21,6 +21,11 @@ class UserResource extends JsonResource
             'image' => $this->image,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'cards_count' => $this->cards->count(),
+            'categories_count' => $this->categories->count(),
+            'revenues_count' => $this->revenues->count(),
+            'expenses_count' => $this->expenses->count(),
+            'card_expenses_count' => $this->cardExpenses->count(),
         ];
     }
 }
