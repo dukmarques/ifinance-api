@@ -3,6 +3,7 @@ use function Pest\Faker\fake;
 use function Pest\Laravel\{getJson, actingAs};
 use App\Models\User;
 use App\Models\Card;
+use Symfony\Component\HttpFoundation\Response;
 
 beforeEach(function () {
     $this->user = User::factory()->create();
@@ -16,8 +17,8 @@ it('get all cards', function () {
     actingAs($this->user)
         ->getJson("/api/cards")
         ->assertStatus(200)
-        ->assertJsonIsArray()
-        ->assertJsonCount(3);
+        ->assertJsonIsArray('data')
+        ->assertJsonCount(3, 'data');
 
     expect(Card::query()->count())->toBe(3);
 });
@@ -30,7 +31,7 @@ it('get a card by id', function () {
         ->assertStatus(200)
         ->assertJsonFragment([
             'name' => $card->name,
-            'closing_date' => $card->closing_date,
+            'closing_day' => $card->closing_day,
             'due_date' => $card->due_date,
             'user_id' => $card->user_id
         ]);
@@ -41,14 +42,14 @@ it('get a non-existent card', function () {
         ->getJson("/api/cards/123")
         ->assertStatus(404)
         ->assertJsonFragment([
-            'message' => 'Card not found'
+            'message' => 'Resource not found'
         ]);
 });
 
 it('register a credit card', function () {
     $data = [
         'name' => fake()->creditCardType(),
-        'closing_date' => fake()->date(),
+        'closing_day' => fake()->date(),
         'due_date' => fake()->date()
     ];
 
@@ -70,7 +71,7 @@ it('update a card', function () {
     $card = Card::factory()->create(['user_id' => $this->user->id]);
     $data = [
         'name' => fake()->creditCardType(),
-        'closing_date' => fake()->date(),
+        'closing_day' => fake()->date(),
         'due_date' => fake()->date()
     ];
 
@@ -83,7 +84,7 @@ it('update a card', function () {
 it('update a card with invalid id', function () {
     $data = [
         'name' => fake()->creditCardType(),
-        'closing_date' => fake()->date(),
+        'closing_day' => fake()->date(),
         'due_date' => fake()->date()
     ];
 
@@ -91,7 +92,7 @@ it('update a card with invalid id', function () {
         ->putJson("/api/cards/123", $data)
         ->assertStatus(404)
         ->assertJsonFragment([
-            'message' => 'Card not found'
+            'message' => 'Resource not found'
         ]);
 });
 
@@ -100,10 +101,7 @@ it('delete a card', function () {
 
     actingAs($this->user)
         ->deleteJson("/api/cards/{$card->id}")
-        ->assertStatus(200)
-        ->assertJsonFragment([
-            'message' => 'Card deleted successfully'
-        ]);
+        ->assertStatus(Response::HTTP_NO_CONTENT);
 });
 
 it('delete a card with invalid id', function () {
@@ -111,6 +109,6 @@ it('delete a card with invalid id', function () {
         ->deleteJson("/api/cards/123")
         ->assertStatus(404)
         ->assertJsonFragment([
-            'message' => 'Card not found'
+            'message' => 'Resource not found'
         ]);
 });

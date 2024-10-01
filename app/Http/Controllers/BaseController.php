@@ -18,18 +18,20 @@ class BaseController extends Controller
      */
     public function index()
     {
-        //
+        $resources = $this->service->index();
+        return response()->json($resources);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store()
     {
-        app($this->storeFormRequest)->validateResolved();
+        $request = app($this->storeFormRequest);
+        $request->validateResolved();
 
         try {
-            $create = $this->service->store($request->all());
+            $create = $this->service->store($request->validated());
 
             return response()->json($create, Response::HTTP_CREATED);
         } catch (\Throwable $th) {
@@ -58,15 +60,16 @@ class BaseController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(string $id)
     {
-        app($this->updateFormRequest)->validateResolved();
+        $request = app($this->storeFormRequest);
+        $request->validateResolved();
 
         try {
-            $update = $this->service->update($id, $request->all());
+            $update = $this->service->update($id, $request->validated());
 
             if (!$update) {
-                return response()->json(['message' => 'Expense not found'], Response::HTTP_NOT_FOUND);
+                return $this->responseWithResrouceNotFound();
             }
 
             return response()->json($update);
@@ -86,12 +89,19 @@ class BaseController extends Controller
             $delete = $this->service->destroy($id);
 
             if(!$delete) {
-                return response()->json(['message' => 'Resource not found'], Response::HTTP_NOT_FOUND);
+                return $this->responseWithResrouceNotFound();
             }
+
+            return response()->noContent();
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => $th->getMessage(),
             ], Response::HTTP_BAD_REQUEST);
         }
+    }
+
+    protected function responseWithResrouceNotFound()
+    {
+        return response()->json(['message' => 'Resource not found'], Response::HTTP_NOT_FOUND);
     }
 }

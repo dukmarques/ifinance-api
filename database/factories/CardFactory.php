@@ -21,8 +21,8 @@ class CardFactory extends Factory
 
         return [
             'name' => fake()->unique()->creditCardType(),
-            'closing_date' => fake()->date(),
-            'due_date' => fake()->date(),
+            'closing_day' => fake()->numberBetween(1, 31),
+            'due_date' => fake()->numberBetween(1, 31),
             'user_id' => $user->id
         ];
     }
