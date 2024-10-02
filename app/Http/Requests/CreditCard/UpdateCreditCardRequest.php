@@ -22,9 +22,12 @@ class UpdateCreditCardRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|min:2',
-            'closing_day' => 'filled|date',
-            'due_date' => 'filled|date',
+            'name' => 'filled|min:2',
+            'closing_day' => 'filled|integer|between:1,31',
+            'due_date' => 'filled|integer|between:1,31',
+            'card_flag' => 'filled|min:2',
+            'limit' => 'filled|integer',
+            'background_color' => 'filled|min:2',
         ];
     }
 }
