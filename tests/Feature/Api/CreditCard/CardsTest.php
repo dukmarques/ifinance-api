@@ -32,7 +32,7 @@ it('get a card by id', function () {
         ->assertJsonFragment([
             'name' => $card->name,
             'closing_day' => $card->closing_day,
-            'due_date' => $card->due_date,
+            'due_day' => $card->due_day,
             'user_id' => $card->user_id
         ]);
 });
@@ -49,14 +49,20 @@ it('get a non-existent card', function () {
 it('register a credit card', function () {
     $data = [
         'name' => fake()->creditCardType(),
-        'closing_day' => fake()->date(),
-        'due_date' => fake()->date()
+        'closing_day' => fake()->numberBetween(1, 31),
+        'due_day' => fake()->numberBetween(1, 31),
+        'limit' => fake()->numberBetween(5000, 100000),
     ];
 
     actingAs($this->user)
         ->postJson("/api/cards", $data)
         ->assertStatus(201)
-        ->assertJsonFragment($data);
+        ->assertJsonFragment(
+            collect($data)
+                ->except('limit')
+                ->merge(['limit' => $data['limit'] / 100])
+                ->toArray()
+        );
 });
 
 it('get all cards without login', function() {
@@ -71,21 +77,28 @@ it('update a card', function () {
     $card = Card::factory()->create(['user_id' => $this->user->id]);
     $data = [
         'name' => fake()->creditCardType(),
-        'closing_day' => fake()->date(),
-        'due_date' => fake()->date()
+        'closing_day' => fake()->numberBetween(1, 31),
+        'due_day' => fake()->numberBetween(1, 31),
+        'limit' => fake()->numberBetween(5000, 100000000),
     ];
 
     actingAs($this->user)
         ->putJson("/api/cards/{$card->id}", $data)
         ->assertStatus(200)
-        ->assertJsonFragment($data);
+        ->assertJsonFragment(
+            collect($data)
+                ->except('limit')
+                ->merge(['limit' => $data['limit'] / 100])
+                ->toArray()
+        );
 });
 
 it('update a card with invalid id', function () {
     $data = [
         'name' => fake()->creditCardType(),
-        'closing_day' => fake()->date(),
-        'due_date' => fake()->date()
+        'closing_day' => fake()->numberBetween(1, 31),
+        'due_day' => fake()->numberBetween(1, 31),
+        'limit' => fake()->numberBetween(5000, 100000000),
     ];
 
     actingAs($this->user)
