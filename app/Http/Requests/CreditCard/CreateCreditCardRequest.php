@@ -24,10 +24,8 @@ class CreateCreditCardRequest extends FormRequest
         return [
             'name' => 'required|min:2',
             'closing_day' => 'required|integer|between:1,31',
-            'due_date' => 'required|integer|between:1,31',
-            'card_flag' => 'filled|min:2',
-            'limit' => 'required|integer',
-            'background_color' => 'filled|min:2',
+            'due_day' => 'required|integer|between:1,31',
+            'limit' => 'required|integer|min:0|max:1000000000',
         ];
     }
 }

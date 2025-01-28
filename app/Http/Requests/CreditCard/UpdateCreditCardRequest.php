@@ -24,10 +24,8 @@ class UpdateCreditCardRequest extends FormRequest
         return [
             'name' => 'filled|min:2',
             'closing_day' => 'filled|integer|between:1,31',
-            'due_date' => 'filled|integer|between:1,31',
-            'card_flag' => 'filled|min:2',
-            'limit' => 'filled|integer',
-            'background_color' => 'filled|min:2',
+            'due_day' => 'filled|integer|between:1,31',
+            'limit' => 'filled|integer|min:0|max:1000000000',
         ];
     }
 }
