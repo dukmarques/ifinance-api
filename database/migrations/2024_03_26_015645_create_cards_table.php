@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('cards', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('name')->unique();
+            $table->string('name');
             $table->unsignedInteger('closing_day')->nullable();
-            $table->unsignedInteger('due_date')->nullable();
+            $table->unsignedInteger('due_day')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

@@ -13,8 +13,6 @@ return new class extends Migration
     {
         Schema::table('cards', function (Blueprint $table) {
             $table->unsignedInteger('limit')->default(0);
-            $table->string('background_color', 10)->nullable();
-            $table->string('card_flag', 50)->nullable();
         });
     }
 
