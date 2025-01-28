@@ -20,11 +20,9 @@ class Card extends Model
     protected $fillable = [
         'name',
         'closing_day',
-        'due_date',
+        'due_day',
         'user_id',
         'limit',
-        'background_color',
-        'card_flag',
     ];
 
     protected $hidden = [];
