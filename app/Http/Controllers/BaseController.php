@@ -62,7 +62,7 @@ class BaseController extends Controller
      */
     public function update(string $id)
     {
-        $request = app($this->storeFormRequest);
+        $request = app($this->updateFormRequest);
         $request->validateResolved();
 
         try {
@@ -92,7 +92,7 @@ class BaseController extends Controller
                 return $this->responseWithResrouceNotFound();
             }
 
-            return response()->noContent();
+            return $this->responseWithNoContent();
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => $th->getMessage(),
@@ -103,5 +103,10 @@ class BaseController extends Controller
     protected function responseWithResrouceNotFound()
     {
         return response()->json(['message' => 'Resource not found'], Response::HTTP_NOT_FOUND);
+    }
+
+    protected function responseWithNoContent()
+    {
+        return response()->noContent();
     }
 }
