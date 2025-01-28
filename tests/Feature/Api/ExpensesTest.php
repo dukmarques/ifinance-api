@@ -15,9 +15,11 @@ beforeEach(function () {
     $this->category = Category::factory()->createOne([
         'user_id' => $this->user->id
     ]);
+
     $this->card = Card::factory()->createOne([
         'user_id' => $this->user->id,
     ]);
+
     $this->date = Carbon::now();
     $this->expenseData = [
         'title' => fake()->text(20),
@@ -75,6 +77,7 @@ describe('simple expense', function () {
         $updatedExpense = [
             'title' => fake()->text(20),
             'amount' => fake()->randomNumber(5, true),
+            'type' => Expenses::TYPE_SIMPLE,
             'is_owner' => false,
             'paid' => true,
             'payment_month' => Carbon::now()->addMonth()->toDateString(),
