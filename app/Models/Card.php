@@ -23,6 +23,8 @@ class Card extends Model
         'due_day',
         'user_id',
         'limit',
+        'background_color',
+        'card_flag',
     ];
 
     protected $hidden = [];

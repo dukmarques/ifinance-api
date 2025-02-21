@@ -25,6 +25,8 @@ class CardFactory extends Factory
             'due_day' => fake()->numberBetween(1, 31),
             'user_id' => $user->id,
             'limit' => fake()->numberBetween(5000, 100000000),
+            'background_color' => fake()->hexColor(),
+            'card_flag' => fake()->creditCardType(),
         ];
     }
 }

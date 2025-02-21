@@ -20,6 +20,8 @@ class CardResource extends JsonResource
             'closing_day' => $this->closing_day,
             'due_day' => $this->due_day,
             'limit' => ($this->limit/100),
+            'background_color' => $this->background_color,
+            'card_flag' => $this->card_flag,
             'user_id' => $this->user_id,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
