@@ -30,7 +30,7 @@ class RevenuesFactory extends Factory
             'description' => fake()->text(300),
             'deprecated_date' => null,
             'user_id' => $user->id,
-            'category_id' => $category->id,
+            'category_id' => $category->id ?? null,
         ];
     }
 }

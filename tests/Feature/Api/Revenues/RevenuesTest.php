@@ -26,9 +26,9 @@ it('get all revenues', function () {
         )
         ->count(10)
         ->create([
-        'user_id' => $this->user->id,
-        'category_id' => $this->category->id,
-    ]);
+            'user_id' => $this->user->id,
+            'category_id' => $this->category->id,
+        ]);
 
     $response = actingAs($this->user)->getJson("/api/revenues?date={$this->date->toDateString()}");
     $response->assertStatus(200)
