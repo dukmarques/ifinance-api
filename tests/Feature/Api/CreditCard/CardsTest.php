@@ -60,7 +60,7 @@ it('register a credit card', function () {
         ->assertJsonFragment(
             collect($data)
                 ->except('limit')
-                ->merge(['limit' => $data['limit'] / 100])
+                ->merge(['limit' => currency_format($data['limit'])])
                 ->toArray()
         );
 });
@@ -88,7 +88,7 @@ it('update a card', function () {
         ->assertJsonFragment(
             collect($data)
                 ->except('limit')
-                ->merge(['limit' => $data['limit'] / 100])
+                ->merge(['limit' => currency_format($data['limit'])])
                 ->toArray()
         );
 });
