@@ -19,7 +19,7 @@ class ExpenseResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'type' => $this->type,
-            'amount' => ($this->amount / 100),
+            'amount' => currency_format($this->amount),
             'is_owner' => $this->is_owner,
             'paid' => $this->paid,
             'payment_month' => $this->payment_month,

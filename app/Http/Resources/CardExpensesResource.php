@@ -16,7 +16,7 @@ class CardExpensesResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'total_amount' => ($this->total_amount / 100),
+            'total_amount' => currency_format($this->total_amount),
             'is_owner' => $this->is_owner,
             'card_id' => $this->user_id,
             'category_id' => $this->category_id,

@@ -17,7 +17,7 @@ class CardInstallmentsResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->title,
-            'amount' => ($this->amount / 100),
+            'amount' => currency_format($this->amount),
             'paid' => $this->paid,
             'installment_number' => $this->installment_number,
             'payment_month' => $this->payment_month,
