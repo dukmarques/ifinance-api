@@ -39,7 +39,10 @@ if (!function_exists('isDateGreaterThan')) {
 }
 
 if (!function_exists('currency_format')) {
-    function currency_format(float $value): string {
+    function currency_format($value): string {
+        if (!isset($value)) {
+            return '';
+        }
         return number_format($value / 100, 2, '.', '');
     }
 }
