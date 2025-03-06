@@ -38,3 +38,8 @@ if (!function_exists('isDateGreaterThan')) {
     }
 }
 
+if (!function_exists('currency_format')) {
+    function currency_format(float $value): string {
+        return number_format($value / 100, 2, '.', '');
+    }
+}
