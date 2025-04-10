@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Http\Resources\RevenuesResource;
 use App\Models\Revenues;
 use App\Models\RevenuesOverrides;
 use Carbon\Carbon;
@@ -12,7 +13,8 @@ use Illuminate\Support\Facades\Auth;
 
 class RevenuesService
 {
-    public function index($requestData): Collection|array {
+    public function index($requestData): Collection|array
+    {
         $date = createCarbonDateFromString($requestData['date']);
 
         $query = Revenues::query()
@@ -26,37 +28,46 @@ class RevenuesService
                 $query->whereMonth('receiving_date', $date->month)
                     ->whereYear('receiving_date', $date->year)
                     ->where('recurrent', '=', false);
-        })
+            })
         ->with([
-            'category',
-            'overrides' => function ($query) use ($date) {
-                $query->whereMonth('revenues_overrides.receiving_date', $date->month)
-                    ->whereYear('revenues_overrides.receiving_date', $date->year);
-            }
-        ]);
+                'category',
+                'overrides' => function ($query) use ($date) {
+                    $query->whereMonth('revenues_overrides.receiving_date', $date->month)
+                        ->whereYear('revenues_overrides.receiving_date', $date->year);
+                }
+            ]);
 
-        return $query->get();
+        return RevenuesResource::collection($query->get())->response()->getData(true);
     }
 
-    public function show(string $id)
+    public function show(string $id): RevenuesResource|null
     {
         $date = createCarbonDateFromString(request()->input('date'));
 
-        return Revenues::with([
+        $revenue = Revenues::with([
             'category',
             'overrides' => function ($query) use ($date) {
                 $query->whereMonth('revenues_overrides.receiving_date', $date->month)
                     ->whereYear('revenues_overrides.receiving_date', $date->year);
             }
         ])->find($id);
+
+        if (!$revenue) {
+            return null;
+        }
+
+        return new RevenuesResource($revenue);
     }
 
-    public function store(Array $data): Revenues|null {
+    public function store(array $data): RevenuesResource
+    {
         $data['user_id'] = Auth::id();
-        return Revenues::query()->create($data);
+        $revenue = Revenues::query()->create($data);
+        return new RevenuesResource($revenue);
     }
 
-    public function update(string $id, Array $data): Revenues|null {
+    public function update(string $id, array $data): RevenuesResource|null
+    {
         $revenue = Revenues::find($id);
 
         if (!$revenue) {
@@ -68,28 +79,32 @@ class RevenuesService
         // atualizar apenas mês atual: criar RevenueOverride
         if ($revenue->recurrent && $data['update_type'] === Revenues::ONLY_MONTH) {
             $this->handleUpdateOnlyMonthInformed(attributes: $data, revenue: $revenue, date: $date);
-            return $revenue->with([
+            $revenue = $revenue->with(
+                [
                 'overrides' => function ($query) use ($date) {
                     $query->whereMonth('revenues_overrides.receiving_date', $date->month)
                         ->whereYear('revenues_overrides.receiving_date', $date->year);
                 }]
             )->first();
+
+            return new RevenuesResource($revenue);
         }
 
         // atualizar mês atual e próximos adiante: adicionar deprecated e criar novo registro
         if (
-                $revenue->recurrent
-                && $data['update_type'] === Revenues::CURRENT_MONTH_AND_FOLLOWERS
-                && !isSameMonthAndYear($date, $revenue->receiving_date)
+            $revenue->recurrent
+            && $data['update_type'] === Revenues::CURRENT_MONTH_AND_FOLLOWERS
+            && !isSameMonthAndYear($date, $revenue->receiving_date)
         ) {
             return $this->handleUpdateInformedMonthAndFollowing(attributes: $data, revenue: $revenue, date: $date);
         }
 
         $revenue->update($data);
-        return $revenue;
+        return new RevenuesResource($revenue);
     }
 
-    private function handleUpdateOnlyMonthInformed(Array $attributes, Revenues $revenue, Carbon $date) {
+    private function handleUpdateOnlyMonthInformed(array $attributes, Revenues $revenue, Carbon $date)
+    {
         $revenueOverride = RevenuesOverrides::query()
             ->where('revenues_id', $revenue->id)
             ->whereMonth('revenues_overrides.receiving_date', '=', $date->month)
@@ -109,7 +124,8 @@ class RevenuesService
         return $revenueOverride->update($attributes);
     }
 
-    private function handleUpdateInformedMonthAndFollowing(Array $attributes, Revenues $revenue, Carbon $date) {
+    private function handleUpdateInformedMonthAndFollowing(array $attributes, Revenues $revenue, Carbon $date): RevenuesResource
+    {
         $newRevenue = $revenue->replicate()->fill(
             $attributes + [
                 'receiving_date' => $date->toDateString(),
@@ -120,10 +136,11 @@ class RevenuesService
         $revenue->deprecated_date = $date->toDateString();
         $revenue->save();
 
-        return $newRevenue;
+        return new RevenuesResource($newRevenue);
     }
 
-    public function destroy(string $id): bool|null {
+    public function destroy(string $id): bool|null
+    {
         $revenue = Revenues::query()->find($id);
 
         if (!$revenue) {
@@ -150,14 +167,15 @@ class RevenuesService
         return $revenue->forceDelete();
     }
 
-    private function deleteInCurrentAndUpcomingMonths(Revenues $revenue, Carbon $date, ): bool
+    private function deleteInCurrentAndUpcomingMonths(Revenues $revenue, Carbon $date): bool
     {
         return $revenue->update([
             'deprecated_date' => $date->subMonths(1)->toDateString(),
         ]);
     }
 
-    private function deleteOnlyInCurrentMonth(Revenues $revenue, Carbon $date): bool {
+    private function deleteOnlyInCurrentMonth(Revenues $revenue, Carbon $date): bool
+    {
         $override = $revenue->overrides()->whereMonth('receiving_date', '=', $date->month)
                         ->whereYear('receiving_date', '=', $date->year)
                         ->first();
