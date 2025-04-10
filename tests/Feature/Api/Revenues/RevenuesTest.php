@@ -1,14 +1,15 @@
 <?php
 
 use Carbon\Carbon;
-use function Pest\Faker\fake;
-use function Pest\Laravel\{getJson, postJson, actingAs};
 use App\Models\User;
 use App\Models\Category;
 use App\Models\Revenues;
 use App\Models\RevenuesOverrides;
 use Illuminate\Support\Arr;
 use Symfony\Component\HttpFoundation\Response;
+
+use function Pest\Faker\fake;
+use function Pest\Laravel\{getJson, postJson, actingAs};
 
 beforeEach(function () {
     $this->user = User::factory()->create();
@@ -30,10 +31,13 @@ it('get all revenues', function () {
             'category_id' => $this->category->id,
         ]);
 
-    $response = actingAs($this->user)->getJson("/api/revenues?date={$this->date->toDateString()}");
-    $response->assertStatus(200)
-        ->assertJsonIsArray()
-        ->assertJsonCount(10);
+    actingAs($this->user)
+        ->getJson("/api/revenues?date={$this->date->toDateString()}")
+        ->assertStatus(200)
+        ->assertJsonIsArray('data')
+        ->assertJsonCount(10, 'data');
+
+    expect(Revenues::query()->count())->toBe(10);
 });
 
 it('get revenues without override', function () {
@@ -51,10 +55,14 @@ it('get revenues without override', function () {
             'category_id' => $this->category->id,
         ]);
 
-    $response = actingAs($this->user)->getJson("/api/revenues?date={$this->date->toDateString()}");
-    $response->assertStatus(200)
-        ->assertJsonIsArray()
-        ->assertJsonCount(0, '0.overrides');
+    actingAs($this->user)
+        ->getJson("/api/revenues?date={$this->date->toDateString()}")
+        ->assertStatus(200)
+        ->assertJsonIsArray('data')
+        ->assertJsonCount(0, 'data.0.overrides');
+
+    expect(Revenues::query()->count())->toBe(1);
+    expect(RevenuesOverrides::query()->count())->toBe(1);
 });
 
 it('get revenues with override', function () {
@@ -68,27 +76,33 @@ it('get revenues with override', function () {
             'category_id' => $this->category->id,
         ]);
 
-    $response = actingAs($this->user)->getJson("/api/revenues?date={$this->date->toDateString()}");
-    $response->assertStatus(200)
-        ->assertJsonIsArray();
+    actingAs($this->user)
+        ->getJson("/api/revenues?date={$this->date->toDateString()}")
+        ->assertStatus(200)
+        ->assertJsonIsArray('data');
+
+    expect(Revenues::query()->count())->toBe(1);
+    expect(RevenuesOverrides::query()->count())->toBe(1);
 });
 
 it('get a revenue by id', function () {
     $revenue = Revenues::factory()->create(['user_id' => $this->user->id]);
 
-    $response = actingAs($this->user)->getJson("/api/revenues/{$revenue->id}");
-    $response->assertStatus(200)
+    actingAs($this->user)
+        ->getJson("/api/revenues/{$revenue->id}")
+        ->assertStatus(200)
         ->assertJsonFragment([
             'title' => $revenue->title,
-            'amount' => $revenue->amount,
+            'amount' => currency_format($revenue->amount),
             'user_id' => $this->user->id,
             'description' => $revenue->description,
         ]);
 });
 
 it('get a non-existent revenue', function () {
-    $response = actingAs($this->user)->getJson("/api/revenues/123");
-    $response->assertStatus(404)
+    actingAs($this->user)
+        ->getJson("/api/revenues/123")
+        ->assertStatus(404)
         ->assertJsonFragment([
             'message' => 'Revenue not found'
         ]);
@@ -102,15 +116,19 @@ it('get a revenue with override in date by id', function () {
             'category_id' => $this->category->id,
         ]);
 
-    $response = actingAs($this->user)->getJson("/api/revenues/{$revenue->id}");
-    $response->assertStatus(200)
+    actingAs($this->user)
+        ->getJson("/api/revenues/{$revenue->id}")
+        ->assertStatus(200)
         ->assertJsonFragment([
             'title' => $revenue->title,
-            'amount' => $revenue->amount,
+            'amount' => currency_format($revenue->amount),
             'user_id' => $this->user->id,
             'description' => $revenue->description,
         ])
         ->assertJsonCount(1, 'overrides');
+
+    expect(Revenues::query()->count())->toBe(1);
+    expect(RevenuesOverrides::query()->count())->toBe(1);
 });
 
 it('get a revenue without override in date by id', function () {
@@ -128,15 +146,19 @@ it('get a revenue without override in date by id', function () {
             'category_id' => $this->category->id,
         ]);
 
-    $response = actingAs($this->user)->getJson("/api/revenues/{$revenue->id}");
-    $response->assertStatus(200)
+    actingAs($this->user)
+        ->getJson("/api/revenues/{$revenue->id}")
+        ->assertStatus(200)
         ->assertJsonFragment([
             'title' => $revenue->title,
-            'amount' => $revenue->amount,
+            'amount' => currency_format($revenue->amount),
             'user_id' => $this->user->id,
             'description' => $revenue->description,
         ])
         ->assertJsonCount(0, 'overrides');
+
+    expect(Revenues::query()->count())->toBe(1);
+    expect(RevenuesOverrides::query()->count())->toBe(1);
 });
 
 it('get revenues deprecated with new value', function () {
@@ -151,12 +173,13 @@ it('get revenues deprecated with new value', function () {
     $newRevenue->deprecated_date = null;
     $newRevenue->save();
 
-    $response = $this->actingAs($this->user)->getJson("/api/revenues?date={$this->date->toDateString()}");
-    $response->assertJsonFragment([
-        'title' => $newRevenue->title,
-        'amount' => $newRevenue->amount,
-        'deprecated_date' => null,
-    ]);
+    actingAs($this->user)
+        ->getJson("/api/revenues?date={$this->date->toDateString()}")
+        ->assertJsonFragment([
+            'title' => $newRevenue->title,
+            'amount' => currency_format($newRevenue->amount),
+            'deprecated_date' => null,
+        ]);
 });
 
 it('get revenues deprecated without new value', function () {
@@ -166,15 +189,16 @@ it('get revenues deprecated without new value', function () {
         'deprecated_date' => \Carbon\Carbon::now()->subMonths(1)
     ]);
 
-    $response = $this->actingAs($this->user)->getJson("/api/revenues?date={$this->date->subMonths(4)->toDateString()}");
-    $response->assertJsonFragment([
-        'id' => $revenue->id,
-        'title' => $revenue->title,
-        'amount' => $revenue->amount,
-        'description' => $revenue->description,
-        'user_id' => $this->user->id,
-    ])
-    ->assertJsonCount(0, '0.overrides');
+    actingAs($this->user)
+        ->getJson("/api/revenues?date={$this->date->subMonths(4)->toDateString()}")
+        ->assertJsonFragment([
+            'id' => $revenue->id,
+            'title' => $revenue->title,
+            'amount' => currency_format($revenue->amount),
+            'description' => $revenue->description,
+            'user_id' => $this->user->id,
+        ])
+        ->assertJsonCount(0, 'data.0.overrides');
 });
 
 it('get revenues deprecated without new value and override', function () {
@@ -192,24 +216,26 @@ it('get revenues deprecated without new value and override', function () {
             'deprecated_date' => \Carbon\Carbon::now()->subMonths(1)
         ]);
 
-    $response = $this->actingAs($this->user)->getJson("/api/revenues?date={$this->date->subMonths(7)->toDateString()}");
-    $response->assertJsonFragment([
-        'id' => $revenue->id,
-        'title' => $revenue->title,
-        'amount' => $revenue->amount,
-        'user_id' => $revenue->user_id,
-    ])->assertJsonCount(1, '0.overrides');
+    actingAs($this->user)
+        ->getJson("/api/revenues?date={$this->date->subMonths(7)->toDateString()}")
+        ->assertJsonFragment([
+            'id' => $revenue->id,
+            'title' => $revenue->title,
+            'amount' => currency_format($revenue->amount),
+            'user_id' => $revenue->user_id,
+        ])->assertJsonCount(1, 'data.0.overrides');
 });
 
 it('get revenue deprecated without new value out date', function () {
-    $revenue = Revenues::factory()
+    Revenues::factory()
         ->create([
             'receiving_date' => \Carbon\Carbon::now()->subMonths(10),
             'deprecated_date' => \Carbon\Carbon::now()->subMonths(1)
         ]);
 
-    $response = $this->actingAs($this->user)->getJson("/api/revenues?date={$this->date->toDateString()}");
-    $response->assertJsonCount(0);
+    actingAs($this->user)
+        ->getJson("/api/revenues?date={$this->date->toDateString()}")
+        ->assertJsonCount(0, 'data');
 });
 
 it('get revenues not current', function () {
@@ -226,18 +252,19 @@ it('get revenues not current', function () {
             'receiving_date' => \Carbon\Carbon::now(),
         ]);
 
-    $response = $this->actingAs($this->user)->getJson("/api/revenues?date={$this->date->toDateString()}");
-    $response->assertJsonFragment([
-        'title' => $recurrentRevenue->title,
-        'amount' => $recurrentRevenue->amount,
-        'recurrent' => 1,
-    ])
-    ->assertJsonFragment([
-        'title' => $notRecurrentRevenue->title,
-        'amount' => $notRecurrentRevenue->amount,
-        'recurrent' => 0,
-        'deprecated_date' => null,
-    ]);
+    actingAs($this->user)
+        ->getJson("/api/revenues?date={$this->date->toDateString()}")
+        ->assertJsonFragment([
+            'title' => $recurrentRevenue->title,
+            'amount' => currency_format($recurrentRevenue->amount),
+            'recurrent' => true,
+        ])
+        ->assertJsonFragment([
+            'title' => $notRecurrentRevenue->title,
+            'amount' => currency_format($notRecurrentRevenue->amount),
+            'recurrent' => false,
+            'deprecated_date' => null,
+        ]);
 });
 
 it('create a non-recurring revenue', function () {
@@ -250,9 +277,20 @@ it('create a non-recurring revenue', function () {
         'category_id' => $this->category->id,
     ];
 
-    $response = $this->actingAs($this->user)->postJson("/api/revenues", $data);
-    $response->assertStatus(201)
-        ->assertJsonFragment($data);
+    actingAs($this->user)
+        ->postJson("/api/revenues", $data)
+        ->assertStatus(201)
+        ->assertJsonFragment(
+            collect($data)
+                ->except(['amount', 'category_id'])
+                ->merge([
+                    'amount' => currency_format($data['amount']),
+                    'category' => [
+                        'id' => $this->category->id,
+                        'name' => $this->category->name,
+                    ],
+                ])->toArray()
+        );
 });
 
 it('create a recurring revenue', function () {
@@ -265,9 +303,20 @@ it('create a recurring revenue', function () {
         'category_id' => $this->category->id,
     ];
 
-    $response = $this->actingAs($this->user)->postJson("/api/revenues", $data);
-    $response->assertStatus(201)
-        ->assertJsonFragment($data);
+    actingAs($this->user)
+        ->postJson("/api/revenues", $data)
+        ->assertStatus(201)
+        ->assertJsonFragment(
+            collect($data)
+                ->except(['amount', 'category_id'])
+                ->merge([
+                    'amount' => currency_format($data['amount']),
+                    'category' => [
+                        'id' => $this->category->id,
+                        'name' => $this->category->name,
+                    ],
+                ])->toArray()
+        );
 });
 
 it('create a recurring revenue without title', function () {
@@ -280,8 +329,9 @@ it('create a recurring revenue without title', function () {
         'category_id' => $this->category->id,
     ];
 
-    $response = $this->actingAs($this->user)->postJson("/api/revenues", $data);
-    $response->assertStatus(400)
+    actingAs($this->user)
+        ->postJson("/api/revenues", $data)
+        ->assertStatus(400)
         ->assertJsonFragment(['message' => 'The title field is required.']);
 });
 
@@ -295,8 +345,9 @@ it('create a recurring revenue with incorrect amount', function () {
         'category_id' => $this->category->id,
     ];
 
-    $response = $this->actingAs($this->user)->postJson("/api/revenues", $data);
-    $response->assertStatus(400)
+    actingAs($this->user)
+        ->postJson("/api/revenues", $data)
+        ->assertStatus(400)
         ->assertJsonFragment(['message' => 'The amount field must be a number.']);
 });
 
@@ -305,8 +356,9 @@ it('update a non-existent revenue', function () {
         'title' => fake()->word(),
     ];
 
-    $response = $this->actingAs($this->user)->putJson("/api/revenues/123", $data);
-    $response->assertStatus(404)
+    actingAs($this->user)
+        ->putJson("/api/revenues/123", $data)
+        ->assertStatus(404)
         ->assertJsonFragment(['message' => 'Revenue not found']);
 });
 
@@ -319,9 +371,15 @@ it('update a non-recurring revenue', function () {
 
     $revenue = Revenues::factory()->create(['recurrent' => false]);
 
-    $response = $this->actingAs($this->user)->putJson("/api/revenues/{$revenue->id}", $data);
-    $response->assertStatus(200)
-        ->assertJsonFragment($data);
+    actingAs($this->user)
+        ->putJson("/api/revenues/{$revenue->id}", $data)
+        ->assertStatus(200)
+        ->assertJsonFragment(
+            collect($data)
+                ->except(['amount', 'category_id'])
+                ->merge(['amount' => currency_format($data['amount'])])
+                ->toArray()
+        );
 });
 
 it('update recurring revenue every month', function () {
@@ -341,13 +399,18 @@ it('update recurring revenue every month', function () {
         'date' => $this->date,
     ];
 
-    $response = $this->actingAs($this->user)->putJson(
-        "/api/revenues/{$revenue->id}",
-        array_merge($data, $updateInfo)
-    );
-
-    $response->assertStatus(200)
-        ->assertJsonFragment($data);
+    actingAs($this->user)
+        ->putJson(
+            "/api/revenues/{$revenue->id}",
+            array_merge($data, $updateInfo)
+        )
+        ->assertStatus(200)
+        ->assertJsonFragment(
+            collect($data)
+                ->except('amount')
+                ->merge(['amount' => currency_format($data['amount'])])
+                ->toArray()
+        );
 });
 
 it('update a recurring revenue only in the reported month', function () {
@@ -367,10 +430,15 @@ it('update a recurring revenue only in the reported month', function () {
         'date' => Carbon::now()->subMonths(2),
     ]]);
 
-    $response = $this->actingAs($this->user)->putJson("/api/revenues/{$revenue->id}", $updateInfo);
-
-    $response->assertStatus(200)
-        ->assertJsonFragment($data);
+    actingAs($this->user)
+        ->putJson("/api/revenues/{$revenue->id}", $updateInfo)
+        ->assertStatus(200)
+        ->assertJsonFragment(
+            collect($data)
+                ->except('amount')
+                ->merge(['amount' => currency_format($data['amount'])])
+                ->toArray()
+        );
 });
 
 it('update a recurring revenue in the reported month and in the following months', function () {
@@ -390,11 +458,15 @@ it('update a recurring revenue in the reported month and in the following months
         'date' => Carbon::now()->subMonths(2),
     ]]);
 
-    $response = $this->actingAs($this->user)->putJson('/api/revenues/' . $revenue->id, $updateInfo);
-    $response->assertStatus(200)
-        ->assertJsonFragment($data);
-
-    expect($response->json('id'))->not->toBe($revenue->id);
+    actingAs($this->user)
+        ->putJson('/api/revenues/' . $revenue->id, $updateInfo)
+        ->assertStatus(200)
+        ->assertJsonFragment(
+            collect($data)
+                ->except('amount')
+                ->merge(['amount' => currency_format($data['amount'])])
+                ->toArray()
+        );
 });
 
 it('updates recurring revenue in the current and upcoming months where the current month is equal to the receiving_date', function () {
@@ -414,9 +486,15 @@ it('updates recurring revenue in the current and upcoming months where the curre
         'date' => Carbon::now()->subMonths(10),
     ]]);
 
-    $response = $this->actingAs($this->user)->putJson('/api/revenues/' . $revenue->id, $updateInfo);
-    $response->assertStatus(200)
-        ->assertJsonFragment($data);
+    actingAs($this->user)
+        ->putJson('/api/revenues/' . $revenue->id, $updateInfo)
+        ->assertStatus(200)
+        ->assertJsonFragment(
+            collect($data)
+                ->except('amount')
+                ->merge(['amount' => currency_format($data['amount'])])
+                ->toArray()
+        );
 });
 
 it('exclude non-recurring income', function () {
@@ -425,13 +503,15 @@ it('exclude non-recurring income', function () {
         'recurrent' => false,
     ]);
 
-    $response = $this->actingAs($this->user)->deleteJson("/api/revenues/{$revenue->id}");
-    $response->assertStatus(Response::HTTP_NO_CONTENT);
+    actingAs($this->user)
+        ->deleteJson("/api/revenues/{$revenue->id}")
+        ->assertStatus(Response::HTTP_NO_CONTENT);
 });
 
 it('delete non-existing revenue ', function () {
-    $response = $this->actingAs($this->user)->deleteJson("/api/revenues/123");
-    $response->assertStatus(Response::HTTP_NOT_FOUND)
+    actingAs($this->user)
+        ->deleteJson("/api/revenues/123")
+        ->assertStatus(Response::HTTP_NOT_FOUND)
         ->assertJsonFragment(['message' => 'Revenue not found']);
 });
 
@@ -441,11 +521,12 @@ it('delete revenue in the current and upcoming months', function () {
         'recurrent' => true,
     ]);
 
-    $response = $this->actingAs($this->user)->deleteJson("/api/revenues/{$revenue->id}", [
-        'exclusion_type' => Revenues::CURRENT_MONTH_AND_FOLLOWERS,
-        'date' => Carbon::now()->subMonths(1)->toDateString(),
-    ]);
-    $response->assertStatus(Response::HTTP_NO_CONTENT);
+    actingAs($this->user)
+        ->deleteJson("/api/revenues/{$revenue->id}", [
+            'exclusion_type' => Revenues::CURRENT_MONTH_AND_FOLLOWERS,
+            'date' => Carbon::now()->subMonths(1)->toDateString(),
+        ])
+        ->assertStatus(Response::HTTP_NO_CONTENT);
 });
 
 it('delete revenue with override only in informed month', function () {
@@ -462,12 +543,13 @@ it('delete revenue with override only in informed month', function () {
         'revenues_id' => $revenue->id,
     ]);
 
-    $response = $this->actingAs($this->user)->deleteJson("/api/revenues/{$revenue->id}", [
-        'exclusion_type' => Revenues::ONLY_MONTH,
-        'date' => Carbon::now()->subMonths(3)->toDateString(),
-    ]);
+    actingAs($this->user)
+        ->deleteJson("/api/revenues/{$revenue->id}", [
+            'exclusion_type' => Revenues::ONLY_MONTH,
+            'date' => Carbon::now()->subMonths(3)->toDateString(),
+        ])
+        ->assertStatus(Response::HTTP_NO_CONTENT);
 
-    $response->assertStatus(Response::HTTP_NO_CONTENT);
     expect($override->is_deleted, true);
 });
 
@@ -479,12 +561,13 @@ it('delete revenue only in informed month', function () {
 
     $date = Carbon::now()->subMonths(3);
 
-    $response = $this->actingAs($this->user)->deleteJson("/api/revenues/{$revenue->id}", [
-        'exclusion_type' => Revenues::ONLY_MONTH,
-        'date' => $date->toDateString(),
-    ]);
+    actingAs($this->user)
+        ->deleteJson("/api/revenues/{$revenue->id}", [
+            'exclusion_type' => Revenues::ONLY_MONTH,
+            'date' => $date->toDateString(),
+        ])
+        ->assertStatus(Response::HTTP_NO_CONTENT);
 
-    $response->assertStatus(Response::HTTP_NO_CONTENT);
     $override = $revenue->overrides()
         ->whereMonth('receiving_date', '=', $date->month)
         ->whereYear('receiving_date', '=', $date->year)
