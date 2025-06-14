@@ -20,8 +20,10 @@ class RevenuesService
         $query = Revenues::query()
             ->where(function (Builder $query) use ($date) {
                 $query->whereDate('receiving_date', '<=', $date)
-                    ->whereDate('deprecated_date', '>=', $date)
-                    ->orWhereNull('deprecated_date')
+                    ->where(function ($subQuery) use ($date) {
+                        $subQuery->whereDate('deprecated_date', '>=', $date)
+                            ->orWhereNull('deprecated_date');
+                    })
                     ->where('recurrent', '=', true);
             })
             ->orWhere(function (Builder $query) use ($date) {
