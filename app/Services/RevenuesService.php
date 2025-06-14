@@ -19,12 +19,7 @@ class RevenuesService
 
         $query = Revenues::query()
             ->where(function (Builder $query) use ($date) {
-                $query->whereDate('receiving_date', '<=', $date)
-                    ->where(function ($subQuery) use ($date) {
-                        $subQuery->whereDate('deprecated_date', '>=', $date)
-                            ->orWhereNull('deprecated_date');
-                    })
-                    ->where('recurrent', '=', true);
+                $this->buildRecurringRevenuesQuery($query, $date);
             })
             ->orWhere(function (Builder $query) use ($date) {
                 $query->whereMonth('receiving_date', $date->month)
@@ -40,6 +35,16 @@ class RevenuesService
             ]);
 
         return RevenuesResource::collection($query->get())->response()->getData(true);
+    }
+
+    private function buildRecurringRevenuesQuery(Builder $query, Carbon $date): Builder
+    {
+        return $query->whereDate('receiving_date', '<=', $date)
+            ->where(function ($subQuery) use ($date) {
+                $subQuery->whereDate('deprecated_date', '>=', $date)
+                    ->orWhereNull('deprecated_date');
+            })
+            ->where('recurrent', '=', true);
     }
 
     public function show(string $id): RevenuesResource|null
