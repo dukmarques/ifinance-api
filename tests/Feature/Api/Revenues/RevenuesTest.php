@@ -267,6 +267,17 @@ it('get revenues not current', function () {
         ]);
 });
 
+it('get revenue recurring in the before month', function () {
+    Revenues::factory()->create([
+        'receiving_date' => Carbon::now()->addMonth(),
+        'recurrent' => true,
+    ]);
+
+    actingAs($this->user)
+        ->getJson("/api/revenues?date={$this->date->toDateString()}")
+        ->assertJsonCount(0, 'data');
+});
+
 it('create a non-recurring revenue', function () {
     $data = [
         'title' => fake()->word(),
