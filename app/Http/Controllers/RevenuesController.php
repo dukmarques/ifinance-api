@@ -9,16 +9,16 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RevenuesController extends Controller
 {
-    private RevenuesService $service;
-
-    public function __construct(RevenuesService $service) {
+    public function __construct(private RevenuesService $service)
+    {
         $this->service = $service;
     }
 
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request) {
+    public function index(Request $request)
+    {
         $revenues = $this->service->index($request->all());
         return response()->json($revenues);
     }
@@ -26,7 +26,8 @@ class RevenuesController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id) {
+    public function show(string $id)
+    {
         $revenue = $this->service->show($id);
 
         if (!$revenue) {
