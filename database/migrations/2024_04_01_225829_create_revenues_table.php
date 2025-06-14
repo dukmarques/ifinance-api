@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      */
@@ -20,7 +19,7 @@ return new class extends Migration
                 ->comment('This column represents the month in which the money will be considered when calculating income versus expenses.');
             $table->date('deprecated_date')->nullable();
             $table->boolean('recurrent')->index();
-            $table->string('description', length: 300);
+            $table->string('description', length: 300)->nullable();
             $table->timestamps();
             $table->softDeletes();
 
