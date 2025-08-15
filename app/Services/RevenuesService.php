@@ -39,9 +39,14 @@ class RevenuesService
 
     private function buildRecurringRevenuesQuery(Builder $query, Carbon $date): Builder
     {
-        return $query->whereDate('receiving_date', '<=', $date)
-            ->where(function ($subQuery) use ($date) {
-                $subQuery->whereDate('deprecated_date', '>=', $date)
+        $firstDayOfMonth = $date->copy()->startOfMonth();
+        $lastDayOfMonth = $date->copy()->endOfMonth();
+
+        return $query->where(function ($query) use ($lastDayOfMonth) {
+            $query->whereDate('receiving_date', '<=', $lastDayOfMonth);
+        })
+            ->where(function ($subQuery) use ($firstDayOfMonth) {
+                $subQuery->whereDate('deprecated_date', '>=', $firstDayOfMonth)
                     ->orWhereNull('deprecated_date');
             })
             ->where('recurrent', '=', true);
@@ -140,7 +145,7 @@ class RevenuesService
         );
         $newRevenue->save();
 
-        $revenue->deprecated_date = $date->toDateString();
+        $revenue->deprecated_date = $date->copy()->firstOfMonth()->subDay()->toDateString();
         $revenue->save();
 
         return new RevenuesResource($newRevenue);
@@ -177,7 +182,7 @@ class RevenuesService
     private function deleteInCurrentAndUpcomingMonths(Revenues $revenue, Carbon $date): bool
     {
         return $revenue->update([
-            'deprecated_date' => $date->subMonths(1)->toDateString(),
+            'deprecated_date' => $date->copy()->subMonths(1)->toDateString(),
         ]);
     }
 
