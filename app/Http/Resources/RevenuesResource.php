@@ -23,7 +23,11 @@ class RevenuesResource extends JsonResource
             'description' => $this->description,
             'deprecated_date' => $this->deprecated_date,
             'user_id' => $this->user_id,
-            'overrides' => RevenuesOverridesResource::collection($this->whenLoaded('overrides')),
+            'override' => $this->whenLoaded('overrides', function () {
+                return $this->overrides->isNotEmpty()
+                    ? new RevenuesOverridesResource($this->overrides->first())
+                    : null;
+            }),
         ];
 
         if ($this->category) {
