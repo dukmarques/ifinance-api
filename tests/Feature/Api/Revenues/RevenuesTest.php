@@ -508,81 +508,83 @@ it('updates recurring revenue in the current and upcoming months where the curre
         );
 });
 
-it('exclude non-recurring income', function () {
-    $revenue = Revenues::factory()->create([
-        'receiving_date' => Carbon::now()->subMonths(10)->toDateString(),
-        'recurrent' => false,
-    ]);
+describe('Exclusion of Revenues', function () {
+    it('exclude non-recurring income', function () {
+        $revenue = Revenues::factory()->create([
+            'receiving_date' => Carbon::now()->subMonths(10)->toDateString(),
+            'recurrent' => false,
+        ]);
 
-    actingAs($this->user)
-        ->deleteJson("/api/revenues/{$revenue->id}")
-        ->assertStatus(Response::HTTP_NO_CONTENT);
-});
+        actingAs($this->user)
+            ->deleteJson("/api/revenues/{$revenue->id}")
+            ->assertStatus(Response::HTTP_NO_CONTENT);
+    });
 
-it('delete non-existing revenue ', function () {
-    actingAs($this->user)
-        ->deleteJson("/api/revenues/123")
-        ->assertStatus(Response::HTTP_NOT_FOUND)
-        ->assertJsonFragment(['message' => 'Revenue not found']);
-});
+    it('delete non-existing revenue ', function () {
+        actingAs($this->user)
+            ->deleteJson("/api/revenues/123")
+            ->assertStatus(Response::HTTP_NOT_FOUND)
+            ->assertJsonFragment(['message' => 'Revenue not found']);
+    });
 
-it('delete revenue in the current and upcoming months', function () {
-    $revenue = Revenues::factory()->create([
-        'receiving_date' => Carbon::now()->subMonths(5),
-        'recurrent' => true,
-    ]);
+    it('delete revenue in the current and upcoming months', function () {
+        $revenue = Revenues::factory()->create([
+            'receiving_date' => Carbon::now()->subMonths(5),
+            'recurrent' => true,
+        ]);
 
-    actingAs($this->user)
-        ->deleteJson("/api/revenues/{$revenue->id}", [
-            'exclusion_type' => Revenues::CURRENT_MONTH_AND_FOLLOWERS,
-            'date' => Carbon::now()->subMonths(1)->toDateString(),
-        ])
-        ->assertStatus(Response::HTTP_NO_CONTENT);
-});
+        actingAs($this->user)
+            ->deleteJson("/api/revenues/{$revenue->id}", [
+                'exclusion_type' => Revenues::CURRENT_MONTH_AND_FOLLOWERS,
+                'date' => Carbon::now()->subMonths(1)->toDateString(),
+            ])
+            ->assertStatus(Response::HTTP_NO_CONTENT);
+    });
 
-it('delete revenue with override only in informed month', function () {
-    $revenue = Revenues::factory()->create([
-        'receiving_date' => Carbon::now()->subMonths(5),
-        'recurrent' => true,
-    ]);
+    it('delete revenue with override only in informed month', function () {
+        $revenue = Revenues::factory()->create([
+            'receiving_date' => Carbon::now()->subMonths(5),
+            'recurrent' => true,
+        ]);
 
-    $override = RevenuesOverrides::factory()->create([
-        'title' => $revenue->title,
-        'amount' => fake()->randomNumber(5, true),
-        'receiving_date' => Carbon::now()->subMonths(3),
-        'description' => $revenue->description,
-        'revenues_id' => $revenue->id,
-    ]);
+        $override = RevenuesOverrides::factory()->create([
+            'title' => $revenue->title,
+            'amount' => fake()->randomNumber(5, true),
+            'receiving_date' => Carbon::now()->subMonths(3),
+            'description' => $revenue->description,
+            'revenues_id' => $revenue->id,
+        ]);
 
-    actingAs($this->user)
-        ->deleteJson("/api/revenues/{$revenue->id}", [
-            'exclusion_type' => Revenues::ONLY_MONTH,
-            'date' => Carbon::now()->subMonths(3)->toDateString(),
-        ])
-        ->assertStatus(Response::HTTP_NO_CONTENT);
+        actingAs($this->user)
+            ->deleteJson("/api/revenues/{$revenue->id}", [
+                'exclusion_type' => Revenues::ONLY_MONTH,
+                'date' => Carbon::now()->subMonths(3)->toDateString(),
+            ])
+            ->assertStatus(Response::HTTP_NO_CONTENT);
 
-    expect($override->is_deleted, true);
-});
+        expect($override->is_deleted, true);
+    });
 
-it('delete revenue only in informed month', function () {
-    $revenue = Revenues::factory()->create([
-        'receiving_date' => Carbon::now()->subMonths(5),
-        'recurrent' => true,
-    ]);
+    it('delete revenue only in informed month', function () {
+        $revenue = Revenues::factory()->create([
+            'receiving_date' => Carbon::now()->subMonths(5),
+            'recurrent' => true,
+        ]);
 
-    $date = Carbon::now()->subMonths(3);
+        $date = Carbon::now()->subMonths(3);
 
-    actingAs($this->user)
-        ->deleteJson("/api/revenues/{$revenue->id}", [
-            'exclusion_type' => Revenues::ONLY_MONTH,
-            'date' => $date->toDateString(),
-        ])
-        ->assertStatus(Response::HTTP_NO_CONTENT);
+        actingAs($this->user)
+            ->deleteJson("/api/revenues/{$revenue->id}", [
+                'exclusion_type' => Revenues::ONLY_MONTH,
+                'date' => $date->toDateString(),
+            ])
+            ->assertStatus(Response::HTTP_NO_CONTENT);
 
-    $override = $revenue->overrides()
-        ->whereMonth('receiving_date', '=', $date->month)
-        ->whereYear('receiving_date', '=', $date->year)
-        ->first();
+        $override = $revenue->overrides()
+            ->whereMonth('receiving_date', '=', $date->month)
+            ->whereYear('receiving_date', '=', $date->year)
+            ->first();
 
-    expect($override->is_deleted, true);
+        expect($override->is_deleted, true);
+    });
 });
