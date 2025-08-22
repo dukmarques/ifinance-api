@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Revenues;
+use App\Http\Requests\Revenues\CreateRevenuesRequest;
 use App\Services\RevenuesService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -42,19 +42,10 @@ class RevenuesController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(CreateRevenuesRequest $request)
     {
         try {
-            $this->validate($request, [
-                'title' => 'bail|required|max:100|min:2',
-                'amount' => 'bail|required|numeric|',
-                'receiving_date' => 'bail|required|date|',
-                'recurrent' => 'bail|required|boolean',
-                'description' => 'filled|string|max:300',
-                'category_id' => 'filled|uuid',
-            ]);
-
-            $revenue = $this->service->store($request->all());
+            $revenue = $this->service->store($request->validated());
             return response()->json($revenue, 201);
         } catch (\Throwable $err) {
             return response()->json([
