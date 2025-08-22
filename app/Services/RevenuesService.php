@@ -176,6 +176,7 @@ class RevenuesService
             return $this->deleteInCurrentAndUpcomingMonths(revenue: $revenue, date: $date);
         }
 
+        $revenue->overrides()->delete();
         return $revenue->forceDelete();
     }
 
