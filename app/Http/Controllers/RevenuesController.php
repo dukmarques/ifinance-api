@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Revenues\CreateRevenuesRequest;
-use App\Services\RevenuesService;
 use Illuminate\Http\Request;
+use App\Services\RevenuesService;
 use Symfony\Component\HttpFoundation\Response;
+use App\Http\Requests\Revenues\CreateRevenuesRequest;
+use App\Http\Requests\Revenues\UpdateRevenuesRequest;
 
 class RevenuesController extends Controller
 {
@@ -57,20 +58,10 @@ class RevenuesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateRevenuesRequest $request, string $id)
     {
         try {
-            $this->validate($request, [
-                'title' => 'bail|filled|max:100|min:2',
-                'amount' => 'bail|filled|numeric|',
-                'receiving_date' => 'bail|filled|date|',
-                'recurrent' => 'bail|filled|boolean',
-                'description' => 'filled|string|max:300',
-                'category_id' => 'filled|uuid|nullable',
-                'date' => 'filled|date',
-            ]);
-
-            $revenue = $this->service->update($id, $request->all());
+            $revenue = $this->service->update($id, $request->validated());
 
             if (!$revenue) {
                 return response()->json([
