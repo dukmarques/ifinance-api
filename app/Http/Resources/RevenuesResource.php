@@ -23,6 +23,7 @@ class RevenuesResource extends JsonResource
             'description' => $this->description,
             'deprecated_date' => $this->deprecated_date,
             'user_id' => $this->user_id,
+            'category_id' => $this->category_id,
             'override' => $this->whenLoaded('overrides', function () {
                 return $this->overrides->isNotEmpty()
                     ? new RevenuesOverridesResource($this->overrides->first())
