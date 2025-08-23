@@ -88,9 +88,17 @@ class RevenuesService
 
         $date = createCarbonDateFromString(Arr::get($data, 'date'));
 
-        // atualizar apenas mês atual: criar RevenueOverride
+        //Update no recurrent revenue
+        if (!$revenue->recurrent) {
+            $revenue->update($data);
+            return new RevenuesResource($revenue);
+        }
+
+        // Update only current month: create RevenueOverride
         if ($revenue->recurrent && $data['update_type'] === Revenues::ONLY_MONTH) {
-            $this->handleUpdateOnlyMonthInformed(attributes: $data, revenue: $revenue, date: $date);
+            $validAttributes = Arr::only($data, ['title', 'amount', 'description']);
+
+            $this->handleUpdateOnlyMonthInformed(attributes: $validAttributes, revenue: $revenue, date: $date);
             $revenue = $revenue->with(
                 [
                 'overrides' => function ($query) use ($date) {
@@ -102,16 +110,19 @@ class RevenuesService
             return new RevenuesResource($revenue);
         }
 
-        // atualizar mês atual e próximos adiante: adicionar deprecated e criar novo registro
+        // Update current month and following months: add deprecated and create new record
         if (
             $revenue->recurrent
             && $data['update_type'] === Revenues::CURRENT_MONTH_AND_FOLLOWERS
             && !isSameMonthAndYear($date, $revenue->receiving_date)
         ) {
-            return $this->handleUpdateInformedMonthAndFollowing(attributes: $data, revenue: $revenue, date: $date);
+            $validAttributes = Arr::only($data, ['title', 'amount', 'description']);
+            return $this->handleUpdateInformedMonthAndFollowing(attributes: $validAttributes, revenue: $revenue, date: $date);
         }
 
-        $revenue->update($data);
+        // Update recurrent revenue in all months
+        $validAttributes = Arr::only($data, ['title', 'amount', 'description', 'category_id']);
+        $revenue->update($validAttributes);
         return new RevenuesResource($revenue);
     }
 
