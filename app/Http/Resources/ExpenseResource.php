@@ -26,9 +26,15 @@ class ExpenseResource extends JsonResource
             'deprecated_date' => $this->deprecated_date,
             'description' => $this->description,
             'category_id' => $this->category_id,
+            'category' => new CategoryResource($this->whenLoaded('category')),
             'card_id' => $this->card_id,
+            'card' => new CardResource($this->whenLoaded('card')),
             'user_id' => $this->user_id,
-            'overrides' => ExpenseOverrideResource::collection($this->whenLoaded('overrides')),
+            'override' => $this->whenLoaded('overrides', function () {
+                return $this->overrides->isNotEmpty()
+                    ? new ExpenseOverrideResource($this->overrides->first())
+                    : null;
+            }),
         ];
     }
 }
