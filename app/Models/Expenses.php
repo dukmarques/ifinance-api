@@ -16,10 +16,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[ScopedBy(AuthScope::class)]
 class Expenses extends Model
 {
-    use HasFactory, HasUuids, HasEditTypes, HasDeleteTypes;
+    use HasFactory;
+    use HasUuids;
+    use HasEditTypes;
+    use HasDeleteTypes;
 
-    const TYPE_SIMPLE = 'simple';
-    const TYPE_RECURRENT = 'recurrent';
+    public const TYPE_SIMPLE = 'simple';
+    public const TYPE_RECURRENT = 'recurrent';
 
     public static array $expenseTypes = [
         self::TYPE_SIMPLE,
@@ -41,18 +44,22 @@ class Expenses extends Model
         'category_id',
     ];
 
-    public function overrides(): HasMany {
+    public function overrides(): HasMany
+    {
         return $this->hasMany(ExpensesOverride::class, 'expense_id', 'id');
     }
-    public function user(): BelongsTo {
+    public function user(): BelongsTo
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function card(): BelongsTo {
+    public function card(): BelongsTo
+    {
         return $this->belongsTo(Card::class);
     }
 
-    public function category(): BelongsTo {
+    public function category(): BelongsTo
+    {
         return $this->belongsTo(Category::class);
     }
 }
