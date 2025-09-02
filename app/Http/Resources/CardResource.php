@@ -28,8 +28,6 @@ class CardResource extends JsonResource
             'user' => new UserResource($this->whenLoaded('user')),
             'card_expenses' => CardExpensesResource::collection($this->whenLoaded('cardExpenses')),
             'card_expenses_count' => $this->cardExpenses->count(),
-            'expenses' => ExpenseResource::collection($this->whenLoaded('expenses')),
-            'expenses_count' => $this->expenses->count(),
         ];
     }
 }

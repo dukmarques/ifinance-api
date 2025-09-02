@@ -35,7 +35,6 @@ class UpdateExpenseRequest extends FormRequest
             'payment_month' => 'filled|date',
             'deprecated_date' => 'filled|date',
             'description' => 'filled|string|max:300',
-            'card_id' => 'exists:cards,id',
             'category_id' => 'exists:categories,id',
             'recurrence_update_type' => 'filled|in:' . implode(',', Expenses::$editTypes),
         ];

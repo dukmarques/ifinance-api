@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      */
@@ -22,9 +21,7 @@ return new class extends Migration
             $table->date('deprecated_date')->nullable()->index();
             $table->string('description', 300)->nullable();
             $table->timestamps();
-
             $table->foreignUuid('user_id')->index()->references('id')->on('users');
-            $table->foreignUuid('card_id')->nullable()->references('id')->on('cards');
             $table->foreignUuid('category_id')->nullable()->references('id')->on('categories');
         });
     }

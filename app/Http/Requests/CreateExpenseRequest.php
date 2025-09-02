@@ -29,11 +29,11 @@ class CreateExpenseRequest extends FormRequest
             'type' => 'required|in:' . implode(',', Expenses::$expenseTypes),
             'amount' => 'required|numeric|min:1',
             'is_owner' => 'required|boolean',
+            'owner' => 'required_if:is_owner,false|string|max:50',
             'paid' => 'filled|boolean',
             'payment_month' => 'required|date',
             'deprecated_date' => 'filled|date',
             'description' => 'filled|string|max:300',
-            'card_id' => 'filled|exists:cards,id',
             'category_id' => 'filled|exists:categories,id',
         ];
     }
