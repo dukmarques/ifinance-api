@@ -11,7 +11,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::table('card_expenses', function (Blueprint $table) {
-            $table->foreignUuid('assignee_id')->index()->references('id')->on('expense_assignees')->onDelete('cascade');
+            $table->foreignId('assignee_id')->index()->references('id')->on('expense_assignees')->onDelete('cascade');
         });
     }
 
@@ -21,7 +21,8 @@ return new class () extends Migration {
     public function down(): void
     {
         Schema::table('card_expenses', function (Blueprint $table) {
-            //
+            $table->dropForeign(['assignee_id']);
+            $table->dropColumn('assignee_id');
         });
     }
 };
