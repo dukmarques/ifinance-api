@@ -13,7 +13,11 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasUuids;
+    use HasApiTokens;
+    use HasFactory;
+    use Notifiable;
+    use SoftDeletes;
+    use HasUuids;
 
     protected $keyType = 'string';
 
@@ -54,23 +58,33 @@ class User extends Authenticatable
         ];
     }
 
-    public function cards(): HasMany {
+    public function cards(): HasMany
+    {
         return $this->hasMany(Card::class);
     }
 
-    public function categories(): HasMany {
+    public function categories(): HasMany
+    {
         return $this->hasMany(Category::class);
     }
 
-    public function revenues(): HasMany {
+    public function revenues(): HasMany
+    {
         return $this->hasMany(Revenues::class);
     }
 
-    public function expenses(): HasMany {
+    public function expenses(): HasMany
+    {
         return $this->hasMany(Expenses::class);
     }
 
-    public function cardExpenses(): HasMany {
+    public function cardExpenses(): HasMany
+    {
         return $this->hasMany(CardExpenses::class);
+    }
+
+    public function assignee(): HasMany
+    {
+        return $this->hasMany(ExpenseAssignees::class);
     }
 }

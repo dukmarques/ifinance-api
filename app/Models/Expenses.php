@@ -35,6 +35,7 @@ class Expenses extends Model
         'type',
         'amount',
         'is_owner',
+        'assignee_id',
         'paid',
         'payment_month',
         'deprecated_date',
@@ -61,5 +62,10 @@ class Expenses extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function assignee(): BelongsTo
+    {
+        return $this->belongsTo(ExpenseAssignees::class);
     }
 }
