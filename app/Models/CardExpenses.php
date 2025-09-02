@@ -47,6 +47,6 @@ class CardExpenses extends Model
 
     public function assignee(): BelongsTo
     {
-        return $this->belongsTo(ExpenseAssignees::class);
+        return $this->belongsTo(ExpenseAssignees::class, 'assignee_id', 'id');
     }
 }
