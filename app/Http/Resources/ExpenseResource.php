@@ -21,6 +21,7 @@ class ExpenseResource extends JsonResource
             'amount' => currency_format($this->amount),
             'is_owner' => $this->is_owner,
             'paid' => $this->paid,
+            'assignee' => new ExpenseAssigneeResource($this->whenLoaded('assignee')),
             'payment_month' => $this->payment_month,
             'deprecated_date' => $this->deprecated_date,
             'description' => $this->description,

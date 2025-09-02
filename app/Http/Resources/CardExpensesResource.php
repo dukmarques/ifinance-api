@@ -18,6 +18,7 @@ class CardExpensesResource extends JsonResource
             'id' => $this->id,
             'total_amount' => currency_format($this->total_amount),
             'is_owner' => $this->is_owner,
+            'assignee' => new ExpenseAssigneeResource($this->whenLoaded('assignee')),
             'card_id' => $this->user_id,
             'category_id' => $this->category_id,
             'installments' => CardInstallmentsResource::collection($this->whenLoaded('installments')),
