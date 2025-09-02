@@ -14,7 +14,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[ScopedBy(AuthScope::class)]
 class Category extends Model
 {
-    use HasFactory, SoftDeletes, HasUuids;
+    use HasFactory;
+    use SoftDeletes;
+    use HasUuids;
 
     protected $fillable = [
         'name',
@@ -23,19 +25,23 @@ class Category extends Model
 
     protected $hidden = [];
 
-    public function user(): BelongsTo {
+    public function user(): BelongsTo
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function revenues(): HasMany {
+    public function revenues(): HasMany
+    {
         return $this->hasMany(Revenues::class);
     }
 
-    public function expenses(): HasMany {
+    public function expenses(): HasMany
+    {
         return $this->hasMany(Expenses::class);
     }
 
-    public function cardExpenses(): HasMany {
+    public function cardExpenses(): HasMany
+    {
         return $this->hasMany(CardExpenses::class);
     }
 }

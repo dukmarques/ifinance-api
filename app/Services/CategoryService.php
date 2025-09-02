@@ -2,10 +2,8 @@
 
 namespace App\Services;
 
-use App\Http\Resources\CategoryResource;
 use App\Models\Category;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\CategoryResource;
 
 class CategoryService extends BaseService
 {
