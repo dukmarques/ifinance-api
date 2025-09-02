@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\Card;
 use App\Models\Category;
+use App\Models\ExpenseAssignees;
 use App\Models\Expenses;
 use App\Models\User;
 use Carbon\Carbon;
@@ -22,20 +22,20 @@ class ExpensesFactory extends Factory
     public function definition(): array
     {
         $user = User::query()->inRandomOrder()->first();
-        $card = Card::query()->inRandomOrder()->first();
         $category = Category::query()->inRandomOrder()->first();
+        $assignee = ExpenseAssignees::query()->inRandomOrder()->first();
 
         return [
             'title' => fake()->word(),
             'type' => fake()->randomElement(Expenses::$expenseTypes),
             'amount' => fake()->randomNumber(5, true),
             'is_owner' => true,
+            'assignee_id' => $assignee?->id ?: null,
             'paid' => fake()->boolean(),
             'payment_month' => Carbon::now()->toDateString(),
             'deprecated_date' => null,
             'description' => fake()->text(300),
             'user_id' => $user->id,
-            'card_id' => $card?->id ?: null,
             'category_id' => $category?->id ?: null,
         ];
     }

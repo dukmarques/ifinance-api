@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,8 +17,12 @@ class ExpenseAssigneesFactory extends Factory
      */
     public function definition(): array
     {
+        $user = User::inRandomOrder()->first();
+
         return [
-            //
+            'name' => fake('pt_BR')->name(),
+            'description' => fake('pt_BR')->sentence(),
+            'user_id' => $user->id,
         ];
     }
 }
