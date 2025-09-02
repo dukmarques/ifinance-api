@@ -41,7 +41,6 @@ class Expenses extends Model
         'deprecated_date',
         'description',
         'user_id',
-        'card_id',
         'category_id',
     ];
 
@@ -52,11 +51,6 @@ class Expenses extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function card(): BelongsTo
-    {
-        return $this->belongsTo(Card::class);
     }
 
     public function category(): BelongsTo

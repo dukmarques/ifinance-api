@@ -9,13 +9,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[ScopedBy(AuthScope::class)]
 class Card extends Model
 {
-    use HasFactory, SoftDeletes, HasUuids;
+    use HasFactory;
+    use SoftDeletes;
+    use HasUuids;
 
     protected $fillable = [
         'name',
@@ -34,11 +35,8 @@ class Card extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function expenses(): HasMany {
-        return $this->hasMany(Expenses::class);
-    }
-
-    public function cardExpenses(): HasMany {
+    public function cardExpenses(): HasMany
+    {
         return $this->hasMany(CardExpenses::class);
     }
 }
