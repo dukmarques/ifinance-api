@@ -5,6 +5,7 @@ use App\Http\Controllers\CardExpensesController;
 use App\Http\Controllers\CardInstallmentsController;
 use App\Http\Controllers\CardsController;
 use App\Http\Controllers\CategoriesController;
+use App\Http\Controllers\ExpenseAssigneesController;
 use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\RevenuesController;
 use App\Http\Controllers\UsersController;
@@ -31,4 +32,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('expenses', ExpensesController::class);
     Route::apiResource('card-expenses', CardExpensesController::class);
     Route::apiResource('card-expenses.installments', CardInstallmentsController::class);
+    Route::apiResource('expense-assignees', ExpenseAssigneesController::class);
 });
