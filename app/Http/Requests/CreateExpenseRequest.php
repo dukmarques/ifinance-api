@@ -29,6 +29,7 @@ class CreateExpenseRequest extends FormRequest
             'type' => 'required|in:' . implode(',', Expenses::$expenseTypes),
             'amount' => 'required|numeric|min:1',
             'is_owner' => 'required|boolean',
+            'assignee_id' => 'required_if:is_owner,false|exists:expense_assignees,id',
             'owner' => 'required_if:is_owner,false|string|max:50',
             'paid' => 'filled|boolean',
             'payment_month' => 'required|date',

@@ -31,6 +31,7 @@ class UpdateExpenseRequest extends FormRequest
             'type' => 'filled|in:' . implode(',', Expenses::$expenseTypes),
             'amount' => 'filled|numeric|min:1',
             'is_owner' => 'filled|boolean',
+            'assignee_id' => 'filled|exists:expense_assignees,id',
             'paid' => 'filled|boolean',
             'payment_month' => 'filled|date',
             'deprecated_date' => 'filled|date',
