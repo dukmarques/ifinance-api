@@ -17,7 +17,7 @@ class BaseService
     public function index()
     {
         $request = request();
-        $paginate = $request->boolean('paginate', true);
+        $paginate = $request->boolean('paginate', false);
 
         $query = $this->model::query();
         $resources = $paginate ? $query->simplePaginate() : $query->get();

@@ -26,7 +26,7 @@ class CreateExpenseRequest extends FormRequest
     {
         return [
             'title' => 'required|string|max:100',
-            'type' => 'required|in:' . implode(',', Expenses::$expenseTypes),
+            'recurrent' => 'required|boolean',
             'amount' => 'required|numeric|min:1',
             'is_owner' => 'required|boolean',
             'assignee_id' => 'required_if:is_owner,false|exists:expense_assignees,id',

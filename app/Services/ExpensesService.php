@@ -17,7 +17,7 @@ class ExpensesService extends BaseService
     {
         $expense = Expenses::query()->findOrFail($id);
 
-        if ($expense->type === Expenses::TYPE_RECURRENT) {
+        if ($expense->isRecurrent()) {
             $recurrentExpenseData = collect($data)->only([
                 'recurrence_update_type',
                 'title',

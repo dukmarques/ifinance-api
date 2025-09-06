@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[ScopedBy(AuthScope::class)]
 class Expenses extends Model
@@ -21,18 +20,10 @@ class Expenses extends Model
     use HasEditTypes;
     use HasDeleteTypes;
 
-    public const TYPE_SIMPLE = 'simple';
-    public const TYPE_RECURRENT = 'recurrent';
-
-    public static array $expenseTypes = [
-        self::TYPE_SIMPLE,
-        self::TYPE_RECURRENT,
-    ];
-
     protected $fillable = [
         'id',
         'title',
-        'type',
+        'recurrent',
         'amount',
         'is_owner',
         'assignee_id',
@@ -61,5 +52,10 @@ class Expenses extends Model
     public function assignee(): BelongsTo
     {
         return $this->belongsTo(ExpenseAssignees::class, 'assignee_id', 'id');
+    }
+
+    public function isRecurrent(): bool
+    {
+        return $this->recurrent;
     }
 }
