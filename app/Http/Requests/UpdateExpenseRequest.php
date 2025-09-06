@@ -37,7 +37,7 @@ class UpdateExpenseRequest extends FormRequest
             'deprecated_date' => 'filled|date',
             'description' => 'filled|string|max:300',
             'category_id' => 'exists:categories,id',
-            'recurrence_update_type' => 'filled|in:' . implode(',', Expenses::$editTypes),
+            'update_type' => 'filled|in:' . implode(',', Expenses::$editTypes),
         ];
     }
 

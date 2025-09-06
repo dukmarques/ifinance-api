@@ -19,7 +19,7 @@ class ExpensesService extends BaseService
 
         if ($expense->isRecurrent()) {
             $recurrentExpenseData = collect($data)->only([
-                'recurrence_update_type',
+                'update_type',
                 'title',
                 'amount',
                 'is_owner',
@@ -56,7 +56,7 @@ class ExpensesService extends BaseService
 
     private function updateRecurrentExpense(Expenses $expense, $data)
     {
-        if ($data['recurrence_update_type'] === Expenses::EDIT_TYPE_CURRENT_AND_FUTURE) {
+        if ($data['update_type'] === Expenses::EDIT_TYPE_CURRENT_AND_FUTURE) {
             $date = createCarbonDateFromString($data['payment_month']);
 
             $newExpense = $expense->replicate()->fill([
@@ -71,7 +71,7 @@ class ExpensesService extends BaseService
             ]);
 
             return $newExpense;
-        } elseif ($data['recurrence_update_type'] === Expenses::EDIT_TYPE_ONLY_MONTH) {
+        } elseif ($data['update_type'] === Expenses::EDIT_TYPE_ONLY_MONTH) {
             $date = createCarbonDateFromString($data['payment_month']);
 
             $expense->overrides()->create([
