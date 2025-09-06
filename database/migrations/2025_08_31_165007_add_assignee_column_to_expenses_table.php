@@ -11,7 +11,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::table('expenses', function (Blueprint $table) {
-            $table->foreignId('assignee_id')->index()->references('id')->on('expense_assignees')->onDelete('cascade');
+            $table->foreignId('assignee_id')->nullable()->index()->references('id')->on('expense_assignees')->onDelete('cascade');
         });
     }
 
