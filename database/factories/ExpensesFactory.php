@@ -23,14 +23,16 @@ class ExpensesFactory extends Factory
     {
         $user = User::query()->inRandomOrder()->first();
         $category = Category::query()->inRandomOrder()->first();
-        $assignee = ExpenseAssignees::query()->inRandomOrder()->first();
+        $assignee = ExpenseAssignees::query()->inRandomOrder()->first()
+            ?: ExpenseAssignees::factory()->create(['user_id' => $user->id]);
+        $isOwner = fake()->boolean();
 
         return [
             'title' => fake()->word(),
             'recurrent' => fake()->boolean(),
             'amount' => fake()->randomNumber(5, true),
-            'is_owner' => true,
-            'assignee_id' => $assignee?->id ?: null,
+            'is_owner' => $isOwner,
+            'assignee_id' => $isOwner ? $assignee->id : null,
             'paid' => fake()->boolean(),
             'payment_month' => Carbon::now()->toDateString(),
             'deprecated_date' => null,
