@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Http\Resources\ExpenseResource;
 use App\Models\Card;
 use App\Models\Expenses;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,7 +15,7 @@ class BaseService
 
     protected $resourceClass;
 
-    public function index()
+    public function index(): Collection|array
     {
         $request = request();
         $paginate = $request->boolean('paginate', false);
