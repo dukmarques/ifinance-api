@@ -27,7 +27,7 @@ class ExpensesFactory extends Factory
 
         return [
             'title' => fake()->word(),
-            'type' => fake()->randomElement(Expenses::$expenseTypes),
+            'recurrent' => fake()->boolean(),
             'amount' => fake()->randomNumber(5, true),
             'is_owner' => true,
             'assignee_id' => $assignee?->id ?: null,
