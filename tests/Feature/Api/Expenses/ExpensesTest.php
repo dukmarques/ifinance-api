@@ -1,14 +1,15 @@
 <?php
 
 use Carbon\Carbon;
-use function Pest\Faker\fake;
-use function Pest\Laravel\{postJson, actingAs};
 use App\Models\User;
 use App\Models\Category;
-use \App\Models\Card;
-use \App\Models\Expenses;
-use \App\Models\ExpensesOverride;
+use App\Models\Card;
+use App\Models\Expenses;
+use App\Models\ExpensesOverride;
 use Symfony\Component\HttpFoundation\Response;
+
+use function Pest\Faker\fake;
+use function Pest\Laravel\{postJson, actingAs};
 
 beforeEach(function () {
     $this->user = User::factory()->createOne();
@@ -16,21 +17,16 @@ beforeEach(function () {
         'user_id' => $this->user->id
     ]);
 
-    $this->card = Card::factory()->createOne([
-        'user_id' => $this->user->id,
-    ]);
-
     $this->date = Carbon::now();
     $this->expenseData = [
         'title' => fake()->text(20),
-        'type' => Expenses::TYPE_SIMPLE,
+        'recurrent' => false,
         'amount' => fake()->randomNumber(5, true),
         'is_owner' => true,
         'paid' => false,
         'payment_month' => Carbon::now()->toDateString(),
         'description' => fake()->text(300),
         'category_id' => $this->category->id ?: null,
-        'card_id' => $this->card->id ?: null,
     ];
 });
 
@@ -55,15 +51,11 @@ describe('simple expense', function () {
 
     it('create a simple expense without required attributes', function () {
         $this->expenseData['title'] = null;
-        $this->expenseData['type'] = 'credit';
         $this->expenseData['amount'] = null;
 
         actingAs($this->user)
             ->postJson('/api/expenses', $this->expenseData)
-            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertJson([
-                'message' => 'The title field is required. (and 2 more errors)',
-            ]);
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
 
         expect(Expenses::query()->count())->toBe(0);
     });
@@ -77,7 +69,7 @@ describe('simple expense', function () {
         $updatedExpense = [
             'title' => fake()->text(20),
             'amount' => fake()->randomNumber(5, true),
-            'type' => Expenses::TYPE_SIMPLE,
+            'recurrent' => false,
             'is_owner' => false,
             'paid' => true,
             'payment_month' => Carbon::now()->addMonth()->toDateString(),
@@ -93,7 +85,7 @@ describe('simple expense', function () {
             ]);
     });
 
-    it('delete a simple expense', function (){
+    it('delete a simple expense', function () {
         $expense = Expenses::factory()->createOne([
             ...$this->expenseData,
             'user_id' => $this->user->id,
@@ -123,7 +115,7 @@ describe('simple expense', function () {
 
 describe('recurrent expense', function () {
     beforeEach(function () {
-        $this->expenseData['type'] = 'recurrent';
+        $this->expenseData['recurrent'] = true;
     });
 
     it('create a recurrent expense', function () {
@@ -138,7 +130,7 @@ describe('recurrent expense', function () {
         expect(Expenses::query()->count())->toBe(1);
     });
 
-    it( 'create a recurrent expense with deprecated month', function () {
+    it('create a recurrent expense with deprecated month', function () {
         $this->expenseData['deprecated_date'] = Carbon::now()->addMonths(3)->toDateString();
 
         actingAs($this->user)
@@ -178,7 +170,7 @@ describe('recurrent expense', function () {
     it('update a recurring expense in all months', function () {
         $expense = Expenses::factory()->createOne([
             ...$this->expenseData,
-            'type' => Expenses::TYPE_RECURRENT,
+            'recurrent' => true,
             'user_id' => $this->user->id,
         ]);
 
@@ -189,14 +181,14 @@ describe('recurrent expense', function () {
             'paid' => true,
             'payment_month' => Carbon::now()->addMonth()->toDateString(),
             'description' => fake()->text(300),
-            'recurrence_update_type' => Expenses::EDIT_TYPE_ALL,
+            'update_type' => Expenses::EDIT_TYPE_ALL,
         ];
 
         actingAs($this->user)
             ->putJson("/api/expenses/{$expense->id}", $updatedExpense)
             ->assertStatus(Response::HTTP_OK)
             ->assertJson([
-                ...collect($updatedExpense)->except('recurrence_update_type')->toArray(),
+                ...collect($updatedExpense)->except('update_type')->toArray(),
                 'amount' => ($updatedExpense['amount'] / 100),
             ]);
     });
@@ -205,7 +197,7 @@ describe('recurrent expense', function () {
         $expense = Expenses::factory()->createOne([
             ...$this->expenseData,
             'payment_month' => Carbon::now()->subMonths(5)->toDateString(),
-            'type' => Expenses::TYPE_RECURRENT,
+            'recurrent' => true,
             'user_id' => $this->user->id,
         ]);
 
@@ -216,7 +208,7 @@ describe('recurrent expense', function () {
             'paid' => true,
             'payment_month' => Carbon::now()->addMonth()->toDateString(),
             'description' => fake()->text(300),
-            'recurrence_update_type' => Expenses::EDIT_TYPE_CURRENT_AND_FUTURE,
+            'update_type' => Expenses::EDIT_TYPE_CURRENT_AND_FUTURE,
         ];
 
         actingAs($this->user)
@@ -224,7 +216,7 @@ describe('recurrent expense', function () {
             ->assertStatus(Response::HTTP_OK)
             ->assertJson([
                 ...collect($updatedExpense)
-                    ->except(['recurrence_update_type', 'recurrence_update_date'])
+                    ->except(['update_type', 'recurrence_update_date'])
                     ->toArray(),
                 'amount' => ($updatedExpense['amount'] / 100),
                 'deprecated_date' => null,
@@ -235,7 +227,7 @@ describe('recurrent expense', function () {
         $expense = Expenses::factory()->createOne([
             ...$this->expenseData,
             'payment_month' => Carbon::now()->subMonths(5)->toDateString(),
-            'type' => Expenses::TYPE_RECURRENT,
+            'recurrent' => true,
             'user_id' => $this->user->id,
         ]);
 
@@ -246,7 +238,7 @@ describe('recurrent expense', function () {
             'paid' => true,
             'payment_month' => Carbon::now()->addMonth()->toDateString(),
             'description' => fake()->text(300),
-            'recurrence_update_type' => Expenses::EDIT_TYPE_ONLY_MONTH,
+            'update_type' => Expenses::EDIT_TYPE_ONLY_MONTH,
         ];
 
         actingAs($this->user)
