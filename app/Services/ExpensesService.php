@@ -50,42 +50,54 @@ class ExpensesService extends BaseService
         return new ExpenseResource($expense);
     }
 
-    public function delete(string $id)
-    {
-    }
-
     private function updateRecurrentExpense(Expenses $expense, $data)
     {
-        if ($data['update_type'] === Expenses::EDIT_TYPE_CURRENT_AND_FUTURE) {
-            $date = createCarbonDateFromString($data['payment_month']);
+        switch ($data['update_type']) {
+            case Expenses::EDIT_TYPE_CURRENT_AND_FUTURE:
+                return $this->updateRecurrentExpenseCurrentAndFuture($expense, $data);
+                break;
 
-            $newExpense = $expense->replicate()->fill([
-                ...$data,
-                'payment_month' => $date->toDateString(),
-                'deprecated_date' => null,
-            ]);
-            $newExpense->save();
+            case Expenses::EDIT_TYPE_ONLY_MONTH:
+                return $this->updateRecurrentExpenseOnlyMonth($expense, $data);
 
-            $expense->update([
-                'deprecated_date' => $date->subMonth()->toDateString(),
-            ]);
-
-            return $newExpense;
-        } elseif ($data['update_type'] === Expenses::EDIT_TYPE_ONLY_MONTH) {
-            $date = createCarbonDateFromString($data['payment_month']);
-
-            $expense->overrides()->create([
-                ...$data,
-                'payment_month' => $date->toDateString(),
-            ]);
-
-            return $expense->load(['overrides' => function ($query) use ($date) {
-                $query->whereDate('payment_month', $date->toDateString());
-            }]);
+            case Expenses::EDIT_TYPE_ALL:
+            default:
+                $expense->update($data);
+                return $expense;
+                break;
         }
+    }
 
-        $expense->update($data);
-        return $expense;
+    private function updateRecurrentExpenseCurrentAndFuture(Expenses $expense, array $data)
+    {
+        $date = createCarbonDateFromString($data['payment_month']);
+
+        $newExpense = $expense->replicate()->fill([
+            ...$data,
+            'payment_month' => $date->toDateString(),
+            'deprecated_date' => null,
+        ]);
+        $newExpense->save();
+
+        $expense->update([
+            'deprecated_date' => $date->subMonth()->toDateString(),
+        ]);
+
+        return $newExpense;
+    }
+
+    private function updateRecurrentExpenseOnlyMonth(Expenses $expense, array $data)
+    {
+        $date = createCarbonDateFromString($data['payment_month']);
+
+        $expense->overrides()->create([
+            ...$data,
+            'payment_month' => $date->toDateString(),
+        ]);
+
+        return $expense->load(['overrides' => function ($query) use ($date) {
+            $query->whereDate('payment_month', $date->toDateString());
+        }]);
     }
 
     public function destroy(string $id, string $delete_type = null): bool
