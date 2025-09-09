@@ -2,8 +2,11 @@
 
 namespace App\Services;
 
-use App\Http\Resources\ExpenseResource;
 use App\Models\Expenses;
+use App\Http\Resources\ExpenseResource;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 class ExpensesService extends BaseService
 {
@@ -11,6 +14,47 @@ class ExpensesService extends BaseService
     {
         $this->model = Expenses::class;
         $this->resourceClass = ExpenseResource::class;
+    }
+
+    public function index(): Collection|array
+    {
+        $requestData = request()->all();
+        $date = createCarbonDateFromString($requestData['date']);
+
+        $query = Expenses::query()
+            ->where(function ($query) use ($date) {
+                $this->buildRecurringExpensesQuery($query, $date);
+            })
+            ->orWhere(function ($query) use ($date) {
+                $query->whereMonth('payment_month', $date->month)
+                    ->whereYear('payment_month', $date->year)
+                    ->where('recurrent', '=', false);
+            })
+            ->with([
+                'category',
+                'assignee',
+                'overrides' => function ($query) use ($date) {
+                    $query->whereMonth('expenses_overrides.payment_month', $date->month)
+                        ->whereYear('expenses_overrides.payment_month', $date->year);
+                }
+            ]);
+
+        return ExpenseResource::collection($query->get())->response()->getData(true);
+    }
+
+    private function buildRecurringExpensesQuery(Builder $query, Carbon $date): Builder
+    {
+        $firstDayOfMonth = $date->copy()->startOfMonth();
+        $lastDayOfMonth = $date->copy()->endOfMonth();
+
+        return $query->where(function ($query) use ($lastDayOfMonth) {
+            $query->whereDate('payment_month', '<=', $lastDayOfMonth);
+        })
+            ->where(function ($subQuery) use ($firstDayOfMonth) {
+                $subQuery->whereDate('deprecated_date', '>=', $firstDayOfMonth)
+                    ->orWhereNull('deprecated_date');
+            })
+            ->where('recurrent', '=', true);
     }
 
     public function update(string $id, array $data): ExpenseResource
