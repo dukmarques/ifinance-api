@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Expenses;
 use App\Http\Resources\ExpenseResource;
+use App\Models\ExpensesOverride;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -144,12 +145,55 @@ class ExpensesService extends BaseService
         }]);
     }
 
-    public function destroy(string $id, string $delete_type = null): bool
+    public function destroy(string $id): bool
     {
-        $expense = Expenses::query()->findOrFail($id);
+        $expense = Expenses::query()->find($id);
 
-        // if ($expense->type === Expenses::TYPE_RECURRENT) {}
+        if (!$expense) {
+            return false;
+        }
 
+        $date = createCarbonDateFromString(request()->input('date'));
+        $deleteType = request()->input('delete_type') ?: null;
+
+        if ($expense->isRecurrent() && $deleteType === Expenses::DELETE_TYPE_ONLY_MONTH) {
+            return $this->deleteOnlyInCurrentMonth($expense, $date);
+        }
+
+        if (
+            $expense->isRecurrent() &&
+            $deleteType === Expenses::DELETE_TYPE_CURRENT_AND_FUTURE &&
+            !isSameMonthAndYear($date, $expense->payment_month)
+        ) {
+            return $this->deleteInCurrentAndFutureMonths($expense, $date);
+        }
+
+        $expense->overrides()->delete();
         return $expense->delete();
+    }
+
+    private function deleteInCurrentAndFutureMonths(Expenses $expense, Carbon $date): bool
+    {
+        return $expense->update([
+            'deprecated_date' => $date->copy()->subMonths(1)->toDateString(),
+        ]);
+    }
+
+    private function deleteOnlyInCurrentMonth(Expenses $expense, Carbon $date): bool
+    {
+        $override = $expense->overrides()->whereMonth('payment_month', '=', $date->month)
+            ->whereYear('payment_month', '=', $date->year)
+            ->first();
+
+        if ($override) {
+            $override->is_deleted = true;
+            return $override->save();
+        }
+
+        return ExpensesOverride::query()->create([
+            'expense_id' => $expense->id,
+            'payment_month' => $date->toDateString(),
+            'is_deleted' => true,
+        ])->save();
     }
 }

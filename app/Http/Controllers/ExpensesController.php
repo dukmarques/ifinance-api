@@ -28,7 +28,7 @@ class ExpensesController extends BaseController
                 'delete_type' => 'required|in:' . implode(',', Expenses::$deleteTypes),
             ]);
 
-            $delete = $this->service->destroy($id, $request->input('delete_type'));
+            $delete = $this->service->destroy($id);
 
             if (!$delete) {
                 return response()->json([
