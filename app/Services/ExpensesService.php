@@ -196,4 +196,45 @@ class ExpensesService extends BaseService
             'is_deleted' => true,
         ])->save();
     }
+
+    public function updateExpensePaymentStatus(string $id, array $data): ?ExpenseResource
+    {
+        $expense = Expenses::query()->find($id);
+
+        if (!$expense) {
+            return null;
+        }
+
+        if ($expense->isRecurrent()) {
+            $date = createCarbonDateFromString($data['date']);
+
+            $override = $expense->overrides()
+                ->whereMonth('payment_month', '=', $date->month)
+                ->whereYear('payment_month', '=', $date->year)
+                ->first();
+
+            if ($override) {
+                $override->paid = $data['paid'];
+                $override->save();
+                return new ExpenseResource($expense);
+            }
+
+            $override = ExpensesOverride::query()->create([
+                'expense_id' => $expense->id,
+                'paid' => $data['paid'],
+                'payment_month' => $date->toDateString(),
+            ]);
+
+            $expense = $expense->fresh(['overrides' => function ($query) use ($date) {
+                $query->whereMonth('payment_month', '=', $date->month)
+                    ->whereYear('payment_month', '=', $date->year);
+            }]);
+
+            return new ExpenseResource($expense);
+        }
+
+        $expense->paid = $data['paid'];
+        $expense->save();
+        return new ExpenseResource($expense);
+    }
 }
