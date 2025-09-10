@@ -85,6 +85,26 @@ describe('simple expense', function () {
             ]);
     });
 
+    it('update expense payment status', function () {
+        $expense = Expenses::factory()->createOne([
+            ...$this->expenseData,
+            'paid' => false,
+            'user_id' => $this->user->id,
+        ]);
+
+        $payload = [
+            'paid' => true,
+        ];
+
+        actingAs($this->user)
+            ->postJson("/api/expenses/{$expense->id}/update-expense-payment-status", $payload)
+            ->assertStatus(Response::HTTP_OK)
+            ->assertJson([
+                'id' => $expense->id,
+                'paid' => true,
+            ]);
+    });
+
     it('delete a simple expense', function () {
         $expense = Expenses::factory()->createOne([
             ...$this->expenseData,
@@ -93,7 +113,7 @@ describe('simple expense', function () {
 
         actingAs($this->user)
             ->deleteJson("/api/expenses/{$expense->id}", [
-                'delete_type' => Expenses::DELETE_TYPE_SIMPLE,
+                'delete_type' => Expenses::DELETE_TYPE_ALL,
             ])
             ->assertStatus(Response::HTTP_NO_CONTENT);
 
@@ -246,5 +266,29 @@ describe('recurrent expense', function () {
             ->assertStatus(Response::HTTP_OK);
 
         expect(ExpensesOverride::query()->count())->toBe(1);
+    });
+
+    it('update expense payment status', function () {
+        $expense = Expenses::factory()->createOne([
+            ...$this->expenseData,
+            'payment_month' => Carbon::now()->toDateString(),
+            'recurrent' => true,
+            'user_id' => $this->user->id,
+        ]);
+
+        $payload = [
+            'paid' => true,
+            'date' => Carbon::now()->toDateString(),
+        ];
+
+        actingAs($this->user)
+            ->postJson("/api/expenses/{$expense->id}/update-expense-payment-status", $payload)
+            ->assertStatus(Response::HTTP_OK)
+            ->assertJson([
+                'id' => $expense->id,
+                'override' => [
+                    'paid' => true,
+                ]
+            ]);
     });
 });
