@@ -17,10 +17,10 @@ class ExpenseResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->title,
-            'recurrent' => $this->recurrent,
+            'recurrent' => (bool) $this->recurrent,
             'amount' => currency_format($this->amount),
-            'is_owner' => $this->is_owner,
-            'paid' => $this->paid,
+            'is_owner' => (bool) $this->is_owner,
+            'paid' => (bool) $this->paid,
             'assignee' => new ExpenseAssigneeResource($this->whenLoaded('assignee')),
             'payment_month' => $this->payment_month,
             'deprecated_date' => $this->deprecated_date,

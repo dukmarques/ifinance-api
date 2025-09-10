@@ -18,7 +18,8 @@ class ExpenseOverrideResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'amount' => currency_format($this->amount),
-            'is_deleted' => $this->is_deleted,
+            'paid' => (bool) $this->isPaid(),
+            'is_deleted' => (bool) $this->is_deleted,
             'payment_month' => $this->payment_month,
             'description' => $this->description,
         ];
