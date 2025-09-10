@@ -29,6 +29,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('cards', CardsController::class);
     Route::apiResource('categories', CategoriesController::class);
     Route::apiResource('revenues', RevenuesController::class);
+    Route::post('/expenses/{id}/update-expense-payment-status', [ExpensesController::class, 'updateExpensePaymentStatus']);
     Route::apiResource('expenses', ExpensesController::class);
     Route::apiResource('card-expenses', CardExpensesController::class);
     Route::apiResource('card-expenses.installments', CardInstallmentsController::class);

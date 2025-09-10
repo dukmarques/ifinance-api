@@ -43,4 +43,28 @@ class ExpensesController extends BaseController
             ], Response::HTTP_BAD_REQUEST);
         }
     }
+
+    public function updateExpensePaymentStatus(string $id, Request $request)
+    {
+        try {
+            $this->validate($request, [
+                'paid' => 'required|boolean',
+                'date' => 'filled|date_format:Y-m-d',
+            ]);
+
+            $expense = $this->service->updateExpensePaymentStatus($id, $request->all());
+
+            if (!$expense) {
+                return response()->json([
+                    'message' => 'Expense not found'
+                ], Response::HTTP_NOT_FOUND);
+            }
+
+            return response()->json($expense, Response::HTTP_OK);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage(),
+            ], Response::HTTP_BAD_REQUEST);
+        }
+    }
 }
