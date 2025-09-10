@@ -9,19 +9,27 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ExpensesOverride extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory;
+    use HasUuids;
 
     protected $fillable = [
         'id',
         'title',
         'amount',
+        'paid',
         'is_deleted',
         'payment_month',
         'description',
         'expense_id',
     ];
 
-    public function expense(): BelongsTo {
+    public function expense(): BelongsTo
+    {
         return $this->belongsTo(Expenses::class, 'id', 'expense_id');
+    }
+
+    public function isPaid(): bool
+    {
+        return $this->paid;
     }
 }
