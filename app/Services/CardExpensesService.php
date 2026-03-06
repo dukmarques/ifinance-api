@@ -19,7 +19,7 @@ class CardExpensesService
         $installments = $this->generateInstallmentsArray(data: $data, cardExpenseId: $cardExpense->id);
         CardInstallments::query()->insert($installments);
 
-        return new CardExpensesResource($cardExpense->load('installments'));
+        return new CardExpensesResource($cardExpense->load(['installments', 'assignee']));
     }
 
     private function generateInstallmentsArray($data, string $cardExpenseId): array {

@@ -5,6 +5,7 @@ namespace App\Http\Requests\CardExpenses;
 use App\Models\CardExpenses;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class CreateCardExpensesRequest extends FormRequest
 {
@@ -27,6 +28,11 @@ class CreateCardExpensesRequest extends FormRequest
             'title' => 'required|string|max:100',
             'total_amount' => 'required|numeric|min:1',
             'is_owner' => 'required|boolean',
+            'assignee_id' => [
+                'required_if:is_owner,false',
+                Rule::exists('expense_assignees', 'id')
+                    ->where(fn($query) => $query->where('user_id', Auth::id())),
+            ],
             'card_id' => 'required|exists:cards,id',
             'category_id' => 'required|exists:categories,id',
             'date' => 'required|date',

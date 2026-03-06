@@ -6,6 +6,7 @@ use function Pest\Laravel\{getJson, postJson, actingAs};
 use App\Models\User;
 use App\Models\Category;
 use App\Models\Card;
+use App\Models\ExpenseAssignees;
 use App\Models\CardExpenses;
 use App\Models\CardInstallments;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,6 +20,12 @@ beforeEach(function () {
     ]);
     $this->card = Card::factory()->createOne([
         'user_id' => $this->user->id,
+    ]);
+    $this->assignee = ExpenseAssignees::factory()->createOne([
+        'user_id' => $this->user->id,
+    ]);
+    $this->otherAssignee = ExpenseAssignees::factory()->createOne([
+        'user_id' => User::factory()->createOne()->id,
     ]);
     $this->date = Carbon::now();
     $this->cardExpenseData = [
@@ -75,6 +82,36 @@ describe('create card expense', function () {
             ->assertJson([
                 'message' => 'The final installment field is required.'
             ]);
+    });
+
+    it('create a card expense as non-owner without assignee', function () {
+        $this->cardExpenseData['is_owner'] = false;
+        unset($this->cardExpenseData['assignee_id']);
+
+        actingAs($this->user)
+            ->postJson($this->url, $this->cardExpenseData)
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+            ->assertJsonValidationErrors(['assignee_id']);
+    });
+
+    it('create a card expense with assignee from another user', function () {
+        $this->cardExpenseData['is_owner'] = false;
+        $this->cardExpenseData['assignee_id'] = $this->otherAssignee->id;
+
+        actingAs($this->user)
+            ->postJson($this->url, $this->cardExpenseData)
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+            ->assertJsonValidationErrors(['assignee_id']);
+    });
+
+    it('create a card expense as non-owner with valid assignee', function () {
+        $this->cardExpenseData['is_owner'] = false;
+        $this->cardExpenseData['assignee_id'] = $this->assignee->id;
+
+        actingAs($this->user)
+            ->postJson($this->url, $this->cardExpenseData)
+            ->assertStatus(Response::HTTP_CREATED)
+            ->assertJsonPath('assignee.id', $this->assignee->id);
     });
 });
 
