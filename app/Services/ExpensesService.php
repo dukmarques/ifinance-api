@@ -24,12 +24,13 @@ class ExpensesService extends BaseService
 
         $query = Expenses::query()
             ->where(function ($query) use ($date) {
-                $this->buildRecurringExpensesQuery($query, $date);
-            })
-            ->orWhere(function ($query) use ($date) {
-                $query->whereMonth('payment_month', $date->month)
-                    ->whereYear('payment_month', $date->year)
-                    ->where('recurrent', '=', false);
+                $query->where(function ($query) use ($date) {
+                    $this->buildRecurringExpensesQuery($query, $date);
+                })->orWhere(function ($query) use ($date) {
+                    $query->whereMonth('payment_month', $date->month)
+                        ->whereYear('payment_month', $date->year)
+                        ->where('recurrent', '=', false);
+                });
             })
             ->with([
                 'category',
@@ -68,6 +69,8 @@ class ExpensesService extends BaseService
                 'title',
                 'amount',
                 'is_owner',
+                'owner',
+                'assignee_id',
                 'paid',
                 'payment_month',
                 'deprecated_date',
@@ -84,6 +87,8 @@ class ExpensesService extends BaseService
             'title',
             'amount',
             'is_owner',
+            'owner',
+            'assignee_id',
             'paid',
             'payment_month',
             'description',
@@ -134,11 +139,17 @@ class ExpensesService extends BaseService
     private function updateRecurrentExpenseOnlyMonth(Expenses $expense, array $data)
     {
         $date = createCarbonDateFromString($data['payment_month']);
+        $overrideData = collect($data)
+            ->except(['update_type', 'card_id', 'category_id'])
+            ->merge([
+                'payment_month' => $date->toDateString(),
+            ])
+            ->toArray();
 
-        $expense->overrides()->create([
-            ...$data,
-            'payment_month' => $date->toDateString(),
-        ]);
+        $expense->overrides()->updateOrCreate(
+            ['payment_month' => $date->toDateString()],
+            $overrideData,
+        );
 
         return $expense->load(['overrides' => function ($query) use ($date) {
             $query->whereDate('payment_month', $date->toDateString());
@@ -206,7 +217,7 @@ class ExpensesService extends BaseService
         }
 
         if ($expense->isRecurrent()) {
-            $date = createCarbonDateFromString($data['date']);
+            $date = createCarbonDateFromString($data['date'] ?? null);
 
             $override = $expense->overrides()
                 ->whereMonth('payment_month', '=', $date->month)

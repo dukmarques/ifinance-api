@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\Expenses;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
 class CreateExpenseRequest extends FormRequest
@@ -29,7 +30,11 @@ class CreateExpenseRequest extends FormRequest
             'recurrent' => 'required|boolean',
             'amount' => 'required|numeric|min:1',
             'is_owner' => 'required|boolean',
-            'assignee_id' => 'required_if:is_owner,false|exists:expense_assignees,id',
+            'assignee_id' => [
+                'required_if:is_owner,false',
+                Rule::exists('expense_assignees', 'id')
+                    ->where(fn($query) => $query->where('user_id', Auth::id())),
+            ],
             'owner' => 'required_if:is_owner,false|string|max:50',
             'paid' => 'filled|boolean',
             'payment_month' => 'required|date',
