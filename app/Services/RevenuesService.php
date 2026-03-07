@@ -121,7 +121,7 @@ class RevenuesService
         }
 
         // Update recurrent revenue in all months
-        $validAttributes = Arr::only($data, ['title', 'amount', 'description', 'category_id']);
+        $validAttributes = Arr::only($data, ['title', 'amount', 'description', 'category_id', 'deprecated_date']);
         $revenue->update($validAttributes);
         return new RevenuesResource($revenue);
     }
