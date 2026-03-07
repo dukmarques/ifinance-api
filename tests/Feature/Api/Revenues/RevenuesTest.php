@@ -59,7 +59,7 @@ it('get revenues without override', function () {
         ->getJson("/api/revenues?date={$this->date->toDateString()}")
         ->assertStatus(200)
         ->assertJsonIsArray('data')
-        ->assertJsonCount(0, 'data.0.overrides');
+        ->assertJsonPath('data.0.override', null);
 
     expect(Revenues::query()->count())->toBe(1);
     expect(RevenuesOverrides::query()->count())->toBe(1);
@@ -125,7 +125,7 @@ it('get a revenue with override in date by id', function () {
             'user_id' => $this->user->id,
             'description' => $revenue->description,
         ])
-        ->assertJsonCount(1, 'overrides');
+        ->assertJsonStructure(['override' => ['id', 'revenues_id']]);
 
     expect(Revenues::query()->count())->toBe(1);
     expect(RevenuesOverrides::query()->count())->toBe(1);
@@ -155,7 +155,7 @@ it('get a revenue without override in date by id', function () {
             'user_id' => $this->user->id,
             'description' => $revenue->description,
         ])
-        ->assertJsonCount(0, 'overrides');
+        ->assertJsonPath('override', null);
 
     expect(Revenues::query()->count())->toBe(1);
     expect(RevenuesOverrides::query()->count())->toBe(1);
@@ -198,7 +198,7 @@ it('get revenues deprecated without new value', function () {
             'description' => $revenue->description,
             'user_id' => $this->user->id,
         ])
-        ->assertJsonCount(0, 'data.0.overrides');
+        ->assertJsonPath('data.0.override', null);
 });
 
 it('get revenues deprecated without new value and override', function () {
@@ -212,6 +212,7 @@ it('get revenues deprecated without new value and override', function () {
             },
         )
         ->create([
+            'recurrent' => true,
             'receiving_date' => \Carbon\Carbon::now()->subMonths(10),
             'deprecated_date' => \Carbon\Carbon::now()->subMonths(1)
         ]);
@@ -223,7 +224,7 @@ it('get revenues deprecated without new value and override', function () {
             'title' => $revenue->title,
             'amount' => currency_format($revenue->amount),
             'user_id' => $revenue->user_id,
-        ])->assertJsonCount(1, 'data.0.overrides');
+        ])->assertJsonStructure(['data' => [['override' => ['id', 'revenues_id']]]]);
 });
 
 it('get revenue deprecated without new value out date', function () {
@@ -342,7 +343,7 @@ it('create a recurring revenue without title', function () {
 
     actingAs($this->user)
         ->postJson("/api/revenues", $data)
-        ->assertStatus(400)
+        ->assertStatus(422)
         ->assertJsonFragment(['message' => 'The title field is required.']);
 });
 
@@ -358,7 +359,7 @@ it('create a recurring revenue with incorrect amount', function () {
 
     actingAs($this->user)
         ->postJson("/api/revenues", $data)
-        ->assertStatus(400)
+        ->assertStatus(422)
         ->assertJsonFragment(['message' => 'The amount field must be a number.']);
 });
 
