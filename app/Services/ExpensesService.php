@@ -17,6 +17,26 @@ class ExpensesService extends BaseService
         $this->resourceClass = ExpenseResource::class;
     }
 
+    public function show(string $id): ExpenseResource|null
+    {
+        $date = createCarbonDateFromString(request()->input('date'));
+
+        $expense = Expenses::with([
+            'category',
+            'assignee',
+            'overrides' => function ($query) use ($date) {
+                $query->whereMonth('expenses_overrides.payment_month', $date->month)
+                    ->whereYear('expenses_overrides.payment_month', $date->year);
+            }
+        ])->find($id);
+
+        if (!$expense) {
+            return null;
+        }
+
+        return new ExpenseResource($expense);
+    }
+
     public function index(): Collection|array
     {
         $requestData = request()->all();

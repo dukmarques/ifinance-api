@@ -92,7 +92,7 @@ Response `200`: `{ "data": Expense[] }`
 | `payment_month` | required, date |
 | `deprecated_date` | optional (filled), date — series end date |
 | `description` | optional (filled), string, max:300 |
-| `category_id` | optional (filled), exists:categories |
+| `category_id` | optional (filled), nullable, exists:categories — send `null` to remove |
 
 Cross-validations for `deprecated_date`:
 - Cannot be the same month as `payment_month`.
@@ -104,13 +104,15 @@ Response `201`: `Expense`
 
 ---
 
-### `GET /api/expenses/{id}`
+### `GET /api/expenses/{id}?date=YYYY-MM-DD`
+Loads the expense with `category`, `assignee`, and `override` for the given month.
+If `date` is absent, uses the current date.
 Response `200`: `Expense`
 
 ---
 
 ### `PUT /api/expenses/{id}`
-Same fields as create, all optional (filled), plus:
+Same fields as create, all optional (filled), plus (`category_id` also accepts `null` to remove):
 
 | Extra field | Rules |
 |-------------|-------|

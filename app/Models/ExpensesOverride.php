@@ -25,7 +25,7 @@ class ExpensesOverride extends Model
 
     public function expense(): BelongsTo
     {
-        return $this->belongsTo(Expenses::class, 'id', 'expense_id');
+        return $this->belongsTo(Expenses::class, 'expense_id', 'id');
     }
 
     public function isPaid(): bool

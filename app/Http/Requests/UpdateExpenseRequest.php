@@ -42,7 +42,7 @@ class UpdateExpenseRequest extends FormRequest
             'payment_month' => 'filled|date',
             'deprecated_date' => 'filled|date',
             'description' => 'filled|string|max:300',
-            'category_id' => 'exists:categories,id',
+            'category_id' => 'nullable|exists:categories,id',
             'update_type' => [
                 Rule::requiredIf(fn() => $this->isRecurrentExpense()),
                 'in:' . implode(',', Expenses::getEditTypes()),
