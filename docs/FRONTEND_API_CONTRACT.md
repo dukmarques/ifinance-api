@@ -64,11 +64,14 @@ Authorization: Bearer <token>   (all protected endpoints)
 
 ### Money
 - **Send:** integer cents — `150000` = R$1,500.00
-- **Receive:** decimal string — `"1500.00"`
+- **Receive:** decimal string — "1500.00"
 
 ### Recurrent records
 All domains (expenses, revenues, card installments) share the same enum values:
 - `update_type` / `delete_type` / `exclusion_type`: `only_month | current_and_future | all`
+
+### Recurrent expenses
+`deprecated_date` on a recurrent expense marks the series end date. It can be `null`. The expense stops appearing after the month following `deprecated_date`.
 
 ### Not yet implemented endpoints
 | Endpoint | Method |

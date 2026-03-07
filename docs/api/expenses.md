@@ -85,10 +85,10 @@ Response `200`: `{ "data": Expense[] }`
 | `recurrent` | required, boolean |
 | `amount` | required, numeric, min:1 |
 | `is_owner` | required, boolean |
-| `assignee_id` | required_if:`is_owner=false`, exists:expense_assignees of the authenticated user |
+| `assignee_id` | optional (nullable), required_if:`is_owner=false`, exists:expense_assignees of the authenticated user |
 | `paid` | optional (filled), boolean |
 | `payment_month` | required, date |
-| `deprecated_date` | optional (filled), date — series end date |
+| `deprecated_date` | optional (nullable), date — series end date |
 | `description` | optional (filled), string, max:300 |
 | `category_id` | optional (filled), nullable, exists:categories — send `null` to remove |
 

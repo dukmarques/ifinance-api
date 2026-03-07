@@ -31,13 +31,14 @@ class CreateExpenseRequest extends FormRequest
             'amount' => 'required|numeric|min:1',
             'is_owner' => 'required|boolean',
             'assignee_id' => [
+                'nullable',
                 'required_if:is_owner,false',
                 Rule::exists('expense_assignees', 'id')
-                    ->where(fn($query) => $query->where('user_id', Auth::id())),
+                    ->where(fn ($query) => $query->where('user_id', Auth::id())),
             ],
             'paid' => 'filled|boolean',
             'payment_month' => 'required|date',
-            'deprecated_date' => 'filled|date',
+            'deprecated_date' => 'nullable|date',
             'description' => 'filled|string|max:300',
             'category_id' => 'filled|exists:categories,id',
         ];
@@ -50,7 +51,7 @@ class CreateExpenseRequest extends FormRequest
     {
         return [
             function (Validator $validator) {
-                if ($this->has('deprecated_date')) {
+                if ($this->filled('deprecated_date')) {
                     $paymentMonth = $this->input('payment_month');
                     $deprecatedDate = $this->input('deprecated_date');
 
