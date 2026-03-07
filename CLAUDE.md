@@ -8,6 +8,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
+> **Always use Laravel Sail** (`./vendor/bin/sail`) for all commands. Never use `php`, `php artisan`, or `./vendor/bin/pest` directly.
+
 ### Docker (Laravel Sail)
 ```bash
 ./vendor/bin/sail up -d                    # Start containers in background
@@ -118,7 +120,7 @@ app/
 ├── Models/
 │   └── Scopes/          # AuthScope — global user filter
 ├── Services/            # Business logic extending BaseService
-├── Traits/              # HasEditTypes, HasDeleteTypes (edit/delete type constants)
+├── Traits/              # HasRecurrentTypes (unified edit/delete type constants for all recurrent domains)
 └── helpers.php          # Global helpers for dates and currency formatting
 routes/
 └── api.php              # All API routes

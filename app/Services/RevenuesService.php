@@ -95,7 +95,7 @@ class RevenuesService
         }
 
         // Update only current month: create RevenueOverride
-        if ($revenue->recurrent && $data['update_type'] === Revenues::ONLY_MONTH) {
+        if ($revenue->recurrent && $data['update_type'] === Revenues::EDIT_TYPE_ONLY_MONTH) {
             $validAttributes = Arr::only($data, ['title', 'amount', 'description']);
 
             $this->handleUpdateOnlyMonthInformed(attributes: $validAttributes, revenue: $revenue, date: $date);
@@ -113,7 +113,7 @@ class RevenuesService
         // Update current month and following months: add deprecated and create new record
         if (
             $revenue->recurrent
-            && $data['update_type'] === Revenues::CURRENT_MONTH_AND_FOLLOWERS
+            && $data['update_type'] === Revenues::EDIT_TYPE_CURRENT_AND_FUTURE
             && !isSameMonthAndYear($date, $revenue->receiving_date)
         ) {
             $validAttributes = Arr::only($data, ['title', 'amount', 'description']);
@@ -174,14 +174,14 @@ class RevenuesService
         $type = request()->input('exclusion_type') ?: null;
 
         // excluir apenas mês atual
-        if ($revenue->recurrent && $type === Revenues::ONLY_MONTH) {
+        if ($revenue->recurrent && $type === Revenues::EDIT_TYPE_ONLY_MONTH) {
             return $this->deleteOnlyInCurrentMonth(revenue: $revenue, date: $date);
         }
 
         // excluir mês atual e próximos
         if (
             $revenue->recurrent
-            && $type === Revenues::CURRENT_MONTH_AND_FOLLOWERS
+            && $type === Revenues::EDIT_TYPE_CURRENT_AND_FUTURE
             && !isSameMonthAndYear($date, $revenue->receiving_date)
         ) {
             return $this->deleteInCurrentAndUpcomingMonths(revenue: $revenue, date: $date);

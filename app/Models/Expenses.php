@@ -3,8 +3,7 @@
 namespace App\Models;
 
 use App\Models\Scopes\AuthScope;
-use App\Traits\HasDeleteTypes;
-use App\Traits\HasEditTypes;
+use App\Traits\HasRecurrentTypes;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,8 +16,7 @@ class Expenses extends Model
 {
     use HasFactory;
     use HasUuids;
-    use HasEditTypes;
-    use HasDeleteTypes;
+    use HasRecurrentTypes;
 
     protected $fillable = [
         'id',

@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Traits\HasEditTypes;
+use App\Traits\HasRecurrentTypes;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +13,7 @@ class CardExpenses extends Model
 {
     use HasFactory;
     use HasUuids;
-    use HasEditTypes;
+    use HasRecurrentTypes;
 
     protected $fillable = [
         'id',

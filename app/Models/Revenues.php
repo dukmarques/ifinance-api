@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Models\Scopes\AuthScope;
-use App\Traits\HasEditTypes;
+use App\Traits\HasRecurrentTypes;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,11 +18,7 @@ class Revenues extends Model
     use HasFactory;
     use HasUuids;
     use SoftDeletes;
-    use HasEditTypes;
-
-    public const ONLY_MONTH = 'only_month';
-    public const CURRENT_MONTH_AND_FOLLOWERS = 'current_month_and_followers';
-    public const ALL_MONTH = 'all_month';
+    use HasRecurrentTypes;
 
     protected $fillable = [
         'id',
@@ -49,14 +45,5 @@ class Revenues extends Model
     public function overrides(): HasMany
     {
         return $this->hasMany(RevenuesOverrides::class);
-    }
-
-    public static function getEditTypes(): array
-    {
-        return [
-            self::ONLY_MONTH,
-            self::CURRENT_MONTH_AND_FOLLOWERS,
-            self::ALL_MONTH
-        ];
     }
 }

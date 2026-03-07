@@ -63,7 +63,7 @@ class CardInstallmentsController extends Controller
     {
         try {
             $this->validate($request, [
-                'delete_type' => 'required|in:' . implode(',', CardInstallments::$editTypes)
+                'delete_type' => 'required|in:' . implode(',', CardInstallments::getDeleteTypes())
             ]);
 
             $delete = $this->service->destroy(installmentId: $installmentId, delete_type: $request->input('delete_type'));

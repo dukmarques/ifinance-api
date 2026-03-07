@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Traits\HasEditTypes;
+use App\Traits\HasRecurrentTypes;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CardInstallments extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes, HasEditTypes;
+    use HasFactory, HasUuids, SoftDeletes, HasRecurrentTypes;
 
     protected $fillable = [
         'id',

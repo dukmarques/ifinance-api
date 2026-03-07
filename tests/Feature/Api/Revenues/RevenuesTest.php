@@ -363,12 +363,10 @@ it('create a recurring revenue with incorrect amount', function () {
 });
 
 it('update a non-existent revenue', function () {
-    $data = [
-        'title' => fake()->word(),
-    ];
+    $nonExistentId = fake()->uuid();
 
     actingAs($this->user)
-        ->putJson("/api/revenues/123", $data)
+        ->putJson("/api/revenues/{$nonExistentId}", ['id' => $nonExistentId, 'title' => fake()->word()])
         ->assertStatus(404)
         ->assertJsonFragment(['message' => 'Revenue not found']);
 });
@@ -383,7 +381,7 @@ it('update a non-recurring revenue', function () {
     $revenue = Revenues::factory()->create(['recurrent' => false]);
 
     actingAs($this->user)
-        ->putJson("/api/revenues/{$revenue->id}", $data)
+        ->putJson("/api/revenues/{$revenue->id}", array_merge($data, ['id' => $revenue->id]))
         ->assertStatus(200)
         ->assertJsonFragment(
             collect($data)
@@ -402,11 +400,12 @@ it('update recurring revenue every month', function () {
 
     $revenue = Revenues::factory()->create([
         'receiving_date' => $this->date->subMonths(7),
-        'recurrent' => false,
+        'recurrent' => true,
     ]);
 
     $updateInfo = [
-        'update_type' => 'all_months',
+        'id' => $revenue->id,
+        'update_type' => Revenues::EDIT_TYPE_ALL,
         'date' => $this->date,
     ];
 
@@ -437,7 +436,8 @@ it('update a recurring revenue only in the reported month', function () {
     ]);
 
     $updateInfo = Arr::collapse([$data, [
-        'update_type' => 'only_month',
+        'id' => $revenue->id,
+        'update_type' => Revenues::EDIT_TYPE_ONLY_MONTH,
         'date' => Carbon::now()->subMonths(2),
     ]]);
 
@@ -465,7 +465,8 @@ it('update a recurring revenue in the reported month and in the following months
     ]);
 
     $updateInfo = Arr::collapse([$data, [
-        'update_type' => 'current_month_and_followers',
+        'id' => $revenue->id,
+        'update_type' => Revenues::EDIT_TYPE_CURRENT_AND_FUTURE,
         'date' => Carbon::now()->subMonths(2),
     ]]);
 
@@ -493,7 +494,8 @@ it('updates recurring revenue in the current and upcoming months where the curre
     ]);
 
     $updateInfo = Arr::collapse([$data, [
-        'update_type' => 'current_month_and_followers',
+        'id' => $revenue->id,
+        'update_type' => Revenues::EDIT_TYPE_CURRENT_AND_FUTURE,
         'date' => Carbon::now()->subMonths(10),
     ]]);
 
@@ -535,7 +537,7 @@ describe('Exclusion of Revenues', function () {
 
         actingAs($this->user)
             ->deleteJson("/api/revenues/{$revenue->id}", [
-                'exclusion_type' => Revenues::CURRENT_MONTH_AND_FOLLOWERS,
+                'exclusion_type' => Revenues::EDIT_TYPE_CURRENT_AND_FUTURE,
                 'date' => Carbon::now()->subMonths(1)->toDateString(),
             ])
             ->assertStatus(Response::HTTP_NO_CONTENT);
@@ -557,7 +559,7 @@ describe('Exclusion of Revenues', function () {
 
         actingAs($this->user)
             ->deleteJson("/api/revenues/{$revenue->id}", [
-                'exclusion_type' => Revenues::ONLY_MONTH,
+                'exclusion_type' => Revenues::EDIT_TYPE_ONLY_MONTH,
                 'date' => Carbon::now()->subMonths(3)->toDateString(),
             ])
             ->assertStatus(Response::HTTP_NO_CONTENT);
@@ -575,7 +577,7 @@ describe('Exclusion of Revenues', function () {
 
         actingAs($this->user)
             ->deleteJson("/api/revenues/{$revenue->id}", [
-                'exclusion_type' => Revenues::ONLY_MONTH,
+                'exclusion_type' => Revenues::EDIT_TYPE_ONLY_MONTH,
                 'date' => $date->toDateString(),
             ])
             ->assertStatus(Response::HTTP_NO_CONTENT);

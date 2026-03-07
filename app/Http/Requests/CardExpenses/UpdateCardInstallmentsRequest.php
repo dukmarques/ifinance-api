@@ -37,7 +37,7 @@ class UpdateCardInstallmentsRequest extends FormRequest
             'amount' => 'filled|numeric|min:0.01',
             'paid' => 'filled|boolean',
             'notes' => 'filled|string|max:300',
-            'update_type' => 'required|in:' . implode(',', CardInstallments::$editTypes),
+            'update_type' => 'required|in:' . implode(',', CardInstallments::getEditTypes()),
         ];
     }
 }

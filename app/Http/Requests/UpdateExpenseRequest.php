@@ -45,7 +45,7 @@ class UpdateExpenseRequest extends FormRequest
             'category_id' => 'exists:categories,id',
             'update_type' => [
                 Rule::requiredIf(fn() => $this->isRecurrentExpense()),
-                'in:' . implode(',', Expenses::$editTypes),
+                'in:' . implode(',', Expenses::getEditTypes()),
             ],
         ];
     }
