@@ -35,6 +35,7 @@ class UpdateRevenuesRequest extends FormRequest
             'description' => 'filled|string|max:300',
             'category_id' => 'filled|uuid|nullable',
             'date' => 'filled|date',
+            'deprecated_date' => 'filled|nullable|date',
             'update_type' => 'filled|string|in:' . implode(',', Revenues::getEditTypes())
         ];
     }

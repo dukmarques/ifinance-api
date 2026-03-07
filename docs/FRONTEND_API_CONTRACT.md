@@ -462,13 +462,15 @@ Response `200`: `{ "data": Expense[] }`
 | `owner` | required_if:`is_owner=false`, string, max:50 |
 | `paid` | opcional (filled), boolean |
 | `payment_month` | required, date |
-| `deprecated_date` | opcional (filled), date |
+| `deprecated_date` | opcional (filled), date — data de encerramento da série |
 | `description` | opcional (filled), string, max:300 |
 | `category_id` | opcional (filled), exists:categories |
 
 Validações cruzadas em `deprecated_date`:
 - Não pode ser o mesmo mês de `payment_month`.
 - `payment_month` não pode ser maior que `deprecated_date`.
+
+> **UX — Data de encerramento:** `deprecated_date` pode ser preenchido pelo usuário na criação para indicar que a série recorrente tem fim conhecido (ex: financiamento de 36 meses). A despesa deixará de aparecer a partir do mês seguinte ao `deprecated_date` sem necessidade de exclusão posterior.
 
 Response `201`: `Expense`
 
@@ -577,6 +579,9 @@ Response `200`: `{ "data": Revenue[] }`
 | `recurrent` | required, boolean |
 | `description` | opcional (sometimes\|nullable), string, max:300 |
 | `category_id` | opcional (sometimes\|nullable), uuid |
+| `deprecated_date` | opcional (sometimes\|nullable), date — data de encerramento da série |
+
+> **UX — Data de encerramento:** `deprecated_date` pode ser preenchido na criação para receitas recorrentes com fim conhecido (ex: contrato com vigência até dezembro). A receita deixará de aparecer a partir do mês seguinte ao `deprecated_date`.
 
 Response `201`: `Revenue`
 
@@ -613,6 +618,7 @@ Response `200`: `Revenue`
 | `description` | opcional (filled), string, max:300 |
 | `category_id` | opcional (filled), uuid, nullable |
 | `date` | opcional (filled), date (referência do mês para recorrentes) |
+| `deprecated_date` | opcional (filled), date — data de encerramento da série |
 | `update_type` | opcional (filled), enum: `only_month \| current_month_and_followers \| all_month` |
 
 **Comportamento por `update_type`:**

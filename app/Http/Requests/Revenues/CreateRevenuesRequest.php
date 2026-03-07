@@ -28,6 +28,7 @@ class CreateRevenuesRequest extends FormRequest
             'recurrent' => 'bail|required|boolean',
             'description' => 'sometimes|nullable|string|max:300',
             'category_id' => 'sometimes|nullable|uuid',
+            'deprecated_date' => 'sometimes|nullable|date',
         ];
     }
 }
