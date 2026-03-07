@@ -90,7 +90,7 @@ Response `200`: `{ "data": Expense[] }`
 | `payment_month` | required, date |
 | `deprecated_date` | optional (nullable), date — series end date |
 | `description` | optional (filled), string, max:300 |
-| `category_id` | optional (filled), nullable, exists:categories — send `null` to remove |
+| `category_id` | optional (nullable), exists:categories — send `null` to remove |
 
 Cross-validations for `deprecated_date`:
 - Cannot be the same month as `payment_month`.

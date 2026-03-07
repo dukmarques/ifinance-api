@@ -40,7 +40,7 @@ class CreateExpenseRequest extends FormRequest
             'payment_month' => 'required|date',
             'deprecated_date' => 'nullable|date',
             'description' => 'filled|string|max:300',
-            'category_id' => 'filled|exists:categories,id',
+            'category_id' => 'nullable|exists:categories,id',
         ];
     }
 
