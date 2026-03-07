@@ -12,11 +12,26 @@ Each domain has its own file in [`docs/api/`](api/). When prompting an AI to imp
 1. **[`docs/api/_globals.md`](api/_globals.md)** — base URL, auth, money format, dates, standard errors, HTTP status codes, shared enums, TypeScript primitives
 2. **The domain file** for what you want to build
 
-### Example prompt structure
+### Option A — Local files (Claude Code)
+Use the `/api-docs` command passing the domain(s) you need:
 ```
-Context files:
-- docs/api/_globals.md
-- docs/api/expenses.md
+/api-docs expenses
+/api-docs expenses revenues categories
+```
+Claude will fetch the files from GitHub and load them as context automatically.
+
+### Option B — Raw GitHub URLs (any AI tool)
+Paste these URLs directly in your prompt:
+```
+https://raw.githubusercontent.com/dukmarques/ifinance-api/master/docs/api/_globals.md
+https://raw.githubusercontent.com/dukmarques/ifinance-api/master/docs/api/expenses.md
+```
+
+### Example prompt structure (Option B)
+```
+Please fetch and read these files before starting:
+- https://raw.githubusercontent.com/dukmarques/ifinance-api/master/docs/api/_globals.md
+- https://raw.githubusercontent.com/dukmarques/ifinance-api/master/docs/api/expenses.md
 
 Task: implement the monthly expenses listing screen
 ```
