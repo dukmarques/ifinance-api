@@ -33,7 +33,6 @@ dataset('assignee_links', [
         Expenses::factory()->createOne([
             'user_id' => $owner->id,
             'is_owner' => false,
-            'owner' => 'Someone Else',
             'assignee_id' => $assignee->id,
         ]);
     },

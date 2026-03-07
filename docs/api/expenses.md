@@ -72,7 +72,6 @@ Response `200`: `{ "data": Expense[] }`
   "amount": 150000,
   "is_owner": true,
   "assignee_id": null,
-  "owner": null,
   "paid": false,
   "payment_month": "2026-02-01",
   "deprecated_date": null,
@@ -87,7 +86,6 @@ Response `200`: `{ "data": Expense[] }`
 | `amount` | required, numeric, min:1 |
 | `is_owner` | required, boolean |
 | `assignee_id` | required_if:`is_owner=false`, exists:expense_assignees of the authenticated user |
-| `owner` | required_if:`is_owner=false`, string, max:50 |
 | `paid` | optional (filled), boolean |
 | `payment_month` | required, date |
 | `deprecated_date` | optional (filled), date — series end date |

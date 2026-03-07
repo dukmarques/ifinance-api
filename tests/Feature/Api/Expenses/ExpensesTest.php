@@ -61,7 +61,7 @@ describe('simple expense', function () {
         expect(Expenses::query()->count())->toBe(0);
     });
 
-    it('create a simple expense as non-owner persisting owner', function () {
+    it('create a simple expense as non-owner persisting assignee', function () {
         $assignee = ExpenseAssignees::factory()->createOne([
             'user_id' => $this->user->id,
         ]);
@@ -70,7 +70,6 @@ describe('simple expense', function () {
             ...$this->expenseData,
             'is_owner' => false,
             'assignee_id' => $assignee->id,
-            'owner' => fake()->name(),
         ];
 
         $response = actingAs($this->user)
@@ -78,13 +77,12 @@ describe('simple expense', function () {
             ->assertStatus(Response::HTTP_CREATED)
             ->assertJson([
                 'is_owner' => false,
-                'owner' => $expenseData['owner'],
             ]);
 
         $expense = Expenses::query()->find($response->json('id'));
 
         expect($expense)->not->toBeNull()
-            ->and($expense->owner)->toBe($expenseData['owner']);
+            ->and($expense->assignee_id)->toBe($assignee->id);
     });
 
     it('create a simple expense as non-owner with assignee from another user', function () {
@@ -96,7 +94,6 @@ describe('simple expense', function () {
             ...$this->expenseData,
             'is_owner' => false,
             'assignee_id' => $assignee->id,
-            'owner' => fake()->name(),
         ];
 
         actingAs($this->user)

@@ -24,7 +24,6 @@ class Expenses extends Model
         'recurrent',
         'amount',
         'is_owner',
-        'owner',
         'assignee_id',
         'paid',
         'payment_month',

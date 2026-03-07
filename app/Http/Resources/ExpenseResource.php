@@ -20,7 +20,6 @@ class ExpenseResource extends JsonResource
             'recurrent' => (bool) $this->recurrent,
             'amount' => currency_format($this->amount),
             'is_owner' => (bool) $this->is_owner,
-            'owner' => $this->owner,
             'paid' => (bool) $this->paid,
             'assignee' => new ExpenseAssigneeResource($this->whenLoaded('assignee')),
             'payment_month' => $this->payment_month,

@@ -35,7 +35,6 @@ class CreateExpenseRequest extends FormRequest
                 Rule::exists('expense_assignees', 'id')
                     ->where(fn($query) => $query->where('user_id', Auth::id())),
             ],
-            'owner' => 'required_if:is_owner,false|string|max:50',
             'paid' => 'filled|boolean',
             'payment_month' => 'required|date',
             'deprecated_date' => 'filled|date',
